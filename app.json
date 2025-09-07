@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "scavenger-hunt-mp",
+    "slug": "scavenger-hunt-mp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "scavengerhuntmp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow camera access to capture scavenger hunt photos.",
+        "NSPhotoLibraryAddUsageDescription": "Allow saving captured photos and thumbnails to your Photos library.",
+        "NSPhotoLibraryUsageDescription": "Allow selecting images from your Photos library.",
+        "NSLocationWhenInUseUsageDescription": "Allow recording GPS coordinates with your captures while using the app."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -39,7 +39,19 @@
     },
     "plugins": [
       "expo-router",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F2A900",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "dark": {
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#000000"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

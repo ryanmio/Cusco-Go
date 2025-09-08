@@ -2,6 +2,7 @@ import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
+import PointsTally from '@/components/PointsTally';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -31,6 +32,7 @@ export default function TabLayout() {
         options={{
           title: 'Hunt',
           headerTitle: 'Hunt',
+          headerRight: () => <PointsTally />,
           tabBarIcon: ({ color }) => <TabBarIcon name="image" color={color} />,
         }}
       />
@@ -39,6 +41,7 @@ export default function TabLayout() {
         options={{
           title: 'Gallery',
           headerTitle: 'Gallery',
+          headerRight: () => <PointsTally />,
           tabBarIcon: ({ color }) => <TabBarIcon name="th" color={color} />,
         }}
       />
@@ -47,6 +50,7 @@ export default function TabLayout() {
         options={{
           title: 'Map',
           headerTitle: 'Map',
+          headerRight: () => <PointsTally />,
           tabBarIcon: ({ color }) => <TabBarIcon name="map" color={color} />,
         }}
       />

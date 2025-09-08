@@ -13,6 +13,23 @@ export type CaptureRow = {
 
 let db: SQLite.SQLiteDatabase | null = null;
 
+// Simple in-memory event listeners for capture changes
+export type CapturesListener = () => void;
+const captureListeners = new Set<CapturesListener>();
+
+function emitCapturesChanged() {
+  captureListeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {}
+  });
+}
+
+export function addCapturesListener(listener: CapturesListener): () => void {
+  captureListeners.add(listener);
+  return () => captureListeners.delete(listener);
+}
+
 export function getDb(): SQLite.SQLiteDatabase {
   if (!db) {
     db = SQLite.openDatabaseSync('app.db');
@@ -58,12 +75,15 @@ export function insertCapture(row: Omit<CaptureRow, 'id'>): number {
       row.longitude ?? null,
     ]
   );
-  return result.lastInsertRowId ?? 0;
+  const id = result.lastInsertRowId ?? 0;
+  emitCapturesChanged();
+  return id;
 }
 
 export function deleteCapture(id: number) {
   const database = getDb();
   database.runSync(`DELETE FROM captures WHERE id = ?;`, [id]);
+  emitCapturesChanged();
 }
 
 export function getLatestCaptureForItem(itemId: string): CaptureRow | null {
@@ -102,5 +122,13 @@ export function listCaptures(filters: CaptureFilters = {}): CaptureRow[] {
   const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
   const sql = `SELECT * FROM captures ${where} ORDER BY createdAt DESC;`;
   return database.getAllSync<CaptureRow>(sql, params);
+}
+
+export function listDistinctCapturedItemIds(): string[] {
+  const database = getDb();
+  const rows = database.getAllSync<{ itemId: string }>(
+    `SELECT DISTINCT itemId FROM captures;`
+  );
+  return rows.map((r) => r.itemId);
 }
 

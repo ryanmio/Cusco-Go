@@ -1,17 +1,17 @@
 {
   "expo": {
-    "name": "scavenger-hunt-mp",
-    "slug": "scavenger-hunt-mp",
+    "name": "Cusco Go",
+    "slug": "cusco-go",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "scavengerhuntmp",
+    "scheme": "cuscogo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#F2A900"
     },
     "ios": {
       "supportsTablet": true,
@@ -25,7 +25,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#F2A900"
       },
       "edgeToEdgeEnabled": true
     },

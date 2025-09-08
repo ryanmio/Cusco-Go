@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#F2A900"
     },
     "ios": {
@@ -21,7 +21,8 @@
         "NSCameraUsageDescription": "Allow camera access to capture scavenger hunt photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow saving captured photos and thumbnails to your Photos library.",
         "NSPhotoLibraryUsageDescription": "Allow selecting images from your Photos library.",
-        "NSLocationWhenInUseUsageDescription": "Allow recording GPS coordinates with your captures while using the app."
+        "NSLocationWhenInUseUsageDescription": "Allow recording GPS coordinates with your captures while using the app.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -42,6 +43,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e51973b3-e611-4376-a144-dd08c71c9b14"
+      }
     }
   }
 }

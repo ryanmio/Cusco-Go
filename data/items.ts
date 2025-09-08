@@ -13,7 +13,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Andean Condor', 
     category: 'animal',
     description: 'The largest flying bird in the world, with a wingspan up to 10 feet. Sacred to the Incas, these magnificent birds soar over the Sacred Valley.',
-    placeholder: require('../assets/images/condor.png'),
+    placeholder: require('../assets/images/condor.webp'),
     difficulty: 4,
   },
   { 
@@ -21,7 +21,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Llama', 
     category: 'animal',
     description: 'Domesticated by the Incas over 4,000 years ago, llamas were essential for transportation and wool. Still used by local communities today.',
-    placeholder: require('../assets/images/llama.png'),
+    placeholder: require('../assets/images/llama.webp'),
     difficulty: 1,
   },
   { 
@@ -29,7 +29,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Alpaca', 
     category: 'animal',
     description: 'Smaller than llamas and prized for their ultra-soft wool. Alpacas have been raised in the Andes for millennia for their warm fleece.',
-    placeholder: require('../assets/images/alpaca.png'),
+    placeholder: require('../assets/images/alpaca.webp'),
     difficulty: 2,
   },
   { 
@@ -37,7 +37,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Vicuña', 
     category: 'animal',
     description: 'Wild ancestor of the alpaca, with extremely fine wool once reserved for Inca royalty. These graceful camelids roam high Andean plains and are now a protected treasure.',
-    placeholder: require('../assets/images/vicuna.png'),
+    placeholder: require('../assets/images/vicuna.webp'),
     difficulty: 4,
   },
   { 
@@ -45,7 +45,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Spectacled Bear', 
     category: 'animal',
     description: 'South America’s only bear species, named for the light “spectacle” markings around its eyes. This shy bear lives in the cloud forests and is rarely spotted in the wild.',
-    placeholder: require('../assets/images/bear.png'),
+    placeholder: require('../assets/images/bear.webp'),
     difficulty: 5,
   },
   { 
@@ -53,7 +53,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Andean Cock-of-the-rock', 
     category: 'animal',
     description: 'Peru’s national bird, famed for the male’s brilliant orange-red plumage and fan-shaped crest. At dawn in the cloud forest, males perform noisy displays on rocky ledges to attract mates.',
-    placeholder: require('../assets/images/cock-of-the-rock.png'),
+    placeholder: require('../assets/images/cock-of-the-rock.webp'),
     difficulty: 3,
   },
   { 
@@ -61,7 +61,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Vizcacha', 
     category: 'animal',
     description: 'A rabbit-like rodent with a fluffy long tail, often seen sunbathing on Machu Picchu’s rocks in the early morning. Vizcachas hop among the ruins, grazing on grasses and herbs.',
-    placeholder: require('../assets/images/vizcacha.png'),
+    placeholder: require('../assets/images/vizcacha.webp'),
     difficulty: 2,
   },
   { 
@@ -69,7 +69,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Taruca', 
     category: 'animal',
     description: 'An elusive Andean deer with a thick brown coat and short antlers that blend into the mountain terrain. This endangered deer grazes on high slopes at dawn or dusk, hiding from sight most of the day.',
-    placeholder: require('../assets/images/taruca.png'),
+    placeholder: require('../assets/images/taruca.webp'),
     difficulty: 5,
   },
   { 
@@ -77,7 +77,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Giant Hummingbird', 
     category: 'animal',
     description: 'The largest hummingbird in the world, reaching up to 8 inches long. Despite its size, it flits among high-altitude flowers, hovering to sip nectar in mid-air with rapid wingbeats.',
-    placeholder: require('../assets/images/hummingbird.png'),
+    placeholder: require('../assets/images/hummingbird.webp'),
     difficulty: 3,
   },
   { 
@@ -85,7 +85,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Andean Fox', 
     category: 'animal',
     description: 'A wild fox of the high Andes, with a reddish-gray coat and bushy tail. Also called the culpeo, it often prowls around at dawn and dusk, hunting small animals or scavenging near campsites.',
-    placeholder: require('../assets/images/fox.png'),
+    placeholder: require('../assets/images/fox.webp'),
     difficulty: 4,
   },
   { 
@@ -93,7 +93,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Blue Morpho Butterfly', 
     category: 'animal',
     description: 'One of the largest butterflies, with dazzling iridescent blue wings. Often seen flitting along forest trails and riverbanks, its brilliant color flashes in the sunlight as it flies.',
-    placeholder: require('../assets/images/blue-morpho.png'),
+    placeholder: require('../assets/images/blue-morpho.webp'),
     difficulty: 2,
   },
   { 
@@ -101,7 +101,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Puma (Mountain Lion)', 
     category: 'animal',
     description: 'The elusive apex predator of the Andes, revered by the Incas as a symbol of strength. Pumas silently stalk deer and llamas through the mountains — they avoid humans, so spotting one is extremely rare.',
-    placeholder: require('../assets/images/puma.png'),
+    placeholder: require('../assets/images/puma.webp'),
     difficulty: 5,
   },
   { 
@@ -109,7 +109,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Tarantula', 
     category: 'animal',
     description: 'Large tarantulas live in the forests along the Inca Trail, hiding under rocks by day. At night they emerge to hunt insects — an unexpected sight for late-night hikers (but mostly harmless if left alone).',
-    placeholder: require('../assets/images/tarantula.png'),
+    placeholder: require('../assets/images/tarantula.webp'),
     difficulty: 3,
   },
   { 
@@ -117,7 +117,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Golden-headed Quetzal', 
     category: 'animal',
     description: 'A vibrantly colored bird of the cloud forest, with emerald green and crimson feathers. A cousin of the famous Resplendent Quetzal, it hides in the canopy — a lucky early-morning sighting if you catch a flash of its bright plumage.',
-    placeholder: require('../assets/images/quetzal.png'),
+    placeholder: require('../assets/images/quetzal.webp'),
     difficulty: 4,
   },
   { 
@@ -125,7 +125,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Wild Orchid', 
     category: 'plant',
     description: 'Peru is home to over 3,000 orchid species. The cloud forests around Machu Picchu host many rare and beautiful varieties.',
-    placeholder: require('../assets/images/orchid.png'),
+    placeholder: require('../assets/images/orchid.webp'),
     difficulty: 2,
   },
   { 
@@ -133,7 +133,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Cantuta Flower', 
     category: 'plant',
     description: 'Known as the sacred flower of the Incas and Peru’s national flower. Its tubular blooms — bright red, orange, or yellow — stand out vividly against the mountain greenery.',
-    placeholder: require('../assets/images/cantuta.png'),
+    placeholder: require('../assets/images/cantuta.webp'),
     difficulty: 2,
   },
   { 
@@ -141,7 +141,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Queñua Tree', 
     category: 'plant',
     description: 'One of the highest-growing trees in the world, found at elevations up to 13,000 feet. The queñua’s gnarled trunk has papery bark peeling in layers, an adaptation that helps it survive freezing Andean nights.',
-    placeholder: require('../assets/images/quenua-tree.png'),
+    placeholder: require('../assets/images/quenua-tree.webp'),
     difficulty: 3,
   },
   { 
@@ -149,7 +149,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Coca Plant', 
     category: 'plant',
     description: 'Sacred to the Incas for its healing and ritual uses. Chewing coca leaves or drinking coca tea helps reduce hunger and ward off altitude sickness — a tradition still practiced in the Andes today.',
-    placeholder: require('../assets/images/coca.png'),
+    placeholder: require('../assets/images/coca.webp'),
     difficulty: 3,
   },
   { 
@@ -157,7 +157,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Muña (Andean Mint)', 
     category: 'plant',
     description: 'A wild Andean mint with a powerful spearmint aroma. Locals brew muña tea to soothe upset stomachs and altitude headaches, and they use its fragrant leaves as a natural insect repellent.',
-    placeholder: require('../assets/images/muna.png'),
+    placeholder: require('../assets/images/muna.webp'),
     difficulty: 2,
   },
   { 
@@ -165,7 +165,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Ichu Grass', 
     category: 'plant',
     description: 'Hardy golden grass that carpets the high Andes above the tree line. Llamas, alpacas, and vicuñas graze on ichu, which thrives in thin soil under intense sun and freezing nights.',
-    placeholder: require('../assets/images/ichu.png'),
+    placeholder: require('../assets/images/ichu.webp'),
     difficulty: 2,
   },
   { 
@@ -173,7 +173,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Huayna Picchu', 
     category: 'place',
     description: 'The iconic mountain peak that towers over Machu Picchu. The steep climb offers breathtaking views of the entire citadel below.',
-    placeholder: require('../assets/images/huayna.png'),
+    placeholder: require('../assets/images/huayna.webp'),
     difficulty: 1,
   },
   { 
@@ -181,7 +181,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Temple of the Sun', 
     category: 'place',
     description: 'One of the most sacred structures in Machu Picchu, built with precision-cut stone walls. Thought to be used for astronomical observations and ceremonial offerings to the sun.',
-    placeholder: require('../assets/images/sun-temple.png'),
+    placeholder: require('../assets/images/sun-temple.webp'),
     difficulty: 1,
   },
   { 
@@ -189,7 +189,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Inca Terraces', 
     category: 'place',
     description: 'Agricultural terraces that showcase Inca engineering genius. Built into steep slopes to prevent erosion and create microclimates, allowing different crops to grow at different levels.',
-    placeholder: require('../assets/images/terraces.png'),
+    placeholder: require('../assets/images/terraces.webp'),
     difficulty: 1,
   },
   { 
@@ -197,7 +197,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     title: 'Sun Gate (Inti Punku)', 
     category: 'place',
     description: 'An ancient Inca gateway perched on a ridge overlooking Machu Picchu. Reaching the Sun Gate rewards hikers with a panoramic view of the citadel — it’s where Inca Trail trekkers get their first breathtaking glimpse of Machu Picchu at sunrise.',
-    placeholder: require('../assets/images/sun-gate.png'),
+    placeholder: require('../assets/images/sun-gate.webp'),
     difficulty: 3,
   },
 ];

@@ -16,7 +16,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.cuscogo.app",
-      "buildNumber": "2",
+      "buildNumber": "3",
+      "entitlements": {
+        "com.apple.developer.game-center": true
+      },
       "infoPlist": {
         "NSCameraUsageDescription": "Allow camera access to capture scavenger hunt photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow saving captured photos and thumbnails to your Photos library.",
@@ -49,6 +52,12 @@
             "image": "./assets/images/splash-icon.png",
             "backgroundColor": "#000000"
           }
+        }
+      ],
+      [
+        "react-native-games-services",
+        {
+          "gameCenterEnabled": true
         }
       ]
     ],

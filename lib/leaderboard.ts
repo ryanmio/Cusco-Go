@@ -11,19 +11,12 @@ function getGameCenter(): GameCenterModule | null {
   if (Platform.OS !== 'ios') return null;
   if (cachedModule !== undefined) return cachedModule;
   try {
-    // Try react-native-games-services first
+    // Use react-native-game-center
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require('react-native-games-services');
-    cachedModule = mod?.GameCenter ?? mod?.default ?? mod ?? null;
+    const mod = require('react-native-game-center');
+    cachedModule = mod ?? mod?.default ?? null;
   } catch {
-    try {
-      // Fallback: react-native-game-center
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const mod = require('react-native-game-center');
-      cachedModule = mod ?? null;
-    } catch {
-      cachedModule = null;
-    }
+    cachedModule = null;
   }
   return cachedModule;
 }

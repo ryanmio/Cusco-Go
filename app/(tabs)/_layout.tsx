@@ -1,7 +1,7 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import { Alert, Pressable } from 'react-native';
 import PointsTally from '@/components/PointsTally';
 import { showLeaderboards } from '@/lib/leaderboard';
 
@@ -34,7 +34,7 @@ export default function TabLayout() {
           title: 'Hunt',
           headerTitle: 'Hunt',
           headerRight: () => (
-            <Pressable onPress={() => showLeaderboards()} accessibilityLabel="Show leaderboards" style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Pressable onPress={async () => { const ok = await showLeaderboards(); if (!ok) { Alert.alert('Game Center', 'Leaderboards unavailable. Ensure you are signed into Game Center and try again.'); } }} accessibilityLabel="Show leaderboards" style={{ flexDirection: 'row', alignItems: 'center' }}>
               <PointsTally />
             </Pressable>
           ),
@@ -57,6 +57,15 @@ export default function TabLayout() {
           headerTitle: 'Map',
           headerRight: () => <PointsTally />,
           tabBarIcon: ({ color }) => <TabBarIcon name="map" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="debug"
+        options={{
+          title: 'Debug',
+          headerTitle: 'Debug',
+          headerRight: () => <PointsTally />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="bug" color={color} />,
         }}
       />
     </Tabs>

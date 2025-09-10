@@ -63,25 +63,61 @@ export async function submitTotalScore(score: number): Promise<void> {
   }
 }
 
-export async function showLeaderboards(): Promise<void> {
+export async function showLeaderboards(): Promise<boolean> {
   const gc = getGameCenter();
-  if (!gc) return;
+  if (!gc) return false;
   const leaderboardId = LEADERBOARD_ID;
   try {
     if (typeof gc.showLeaderboard === 'function') {
       await gc.showLeaderboard(leaderboardId);
-      return;
+      return true;
     }
     if (typeof gc.showLeaderboards === 'function') {
       await gc.showLeaderboards({ leaderboardId });
-      return;
+      return true;
     }
     if (typeof gc.openLeaderboard === 'function') {
       await gc.openLeaderboard(leaderboardId);
-      return;
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
+export function isGameCenterAvailable(): boolean {
+  return Platform.OS === 'ios' && Boolean(getGameCenter());
+}
+
+export async function getLocalPlayer(): Promise<
+  | { playerId?: string; displayName?: string; alias?: string }
+  | null
+> {
+  const gc = getGameCenter();
+  if (!gc) return null;
+  try {
+    if (typeof gc.getPlayer === 'function') {
+      return await gc.getPlayer();
+    }
+    if (typeof gc.getLocalPlayer === 'function') {
+      return await gc.getLocalPlayer();
+    }
+    if (gc.player) {
+      return gc.player;
     }
   } catch {
     // ignore
+  }
+  return null;
+}
+
+export async function submitTestScoreOne(): Promise<boolean> {
+  try {
+    await submitTotalScore(1);
+    return true;
+  } catch {
+    return false;
   }
 }
 

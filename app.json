@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.cuscogo.app",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "entitlements": {
         "com.apple.developer.game-center": true
       },

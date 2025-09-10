@@ -1,65 +1,44 @@
 import { Platform } from 'react-native';
+import ExpoGameCenter from 'expo-game-center';
 
 // Single leaderboard identifier: replace with your ASC leaderboard ID
 export const LEADERBOARD_ID = 'cuscogoleaderboard1';
 
 type GameCenterModule = any; // Using any to avoid type dependency on the native module
 
-let cachedModule: GameCenterModule | null | undefined = undefined;
-
 function getGameCenter(): GameCenterModule | null {
   if (Platform.OS !== 'ios') return null;
-  if (cachedModule !== undefined) return cachedModule;
-  try {
-    // Use react-native-game-center
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require('react-native-game-center');
-    cachedModule = mod ?? mod?.default ?? null;
-  } catch {
-    cachedModule = null;
-  }
-  return cachedModule;
+  return (ExpoGameCenter as unknown as GameCenterModule) ?? null;
 }
 
-export async function authenticateGameCenter(): Promise<void> {
+export async function authenticateGameCenter(): Promise<boolean> {
   const gc = getGameCenter();
-  if (!gc) return;
+  if (!gc) return false;
   try {
     // Common method names across libraries
-    if (typeof gc.signIn === 'function') {
-      await gc.signIn();
-    } else if (typeof gc.login === 'function') {
-      await gc.login();
-    } else if (typeof gc.authenticate === 'function') {
-      await gc.authenticate();
+    if (typeof gc.authenticateLocalPlayer === 'function') {
+      const ok = await gc.authenticateLocalPlayer();
+      return Boolean(ok);
     }
+    return false;
   } catch {
-    // ignore auth errors; user may be signed out of Game Center
+    return false;
   }
 }
 
-export async function submitTotalScore(score: number): Promise<void> {
+export async function submitTotalScore(score: number): Promise<boolean> {
   const gc = getGameCenter();
-  if (!gc) return;
+  if (!gc) return false;
   const leaderboardId = LEADERBOARD_ID;
-  if (!leaderboardId) return;
+  if (!leaderboardId) return false;
   try {
-    // react-native-games-services
     if (typeof gc.submitScore === 'function') {
-      await gc.submitScore({ leaderboardId, score: Math.max(0, Math.floor(score)) });
-      return;
+      const ok = await gc.submitScore(Math.max(0, Math.floor(score)), leaderboardId);
+      return Boolean(ok);
     }
-    // Alternate signature some libs use
-    if (typeof gc.postScore === 'function') {
-      await gc.postScore({ leaderboardId, score: Math.max(0, Math.floor(score)) });
-      return;
-    }
-    if (typeof gc.reportScore === 'function') {
-      await gc.reportScore(Math.max(0, Math.floor(score)), leaderboardId);
-      return;
-    }
+    return false;
   } catch {
-    // swallow errors to avoid UI disruption
+    return false;
   }
 }
 
@@ -68,16 +47,12 @@ export async function showLeaderboards(): Promise<boolean> {
   if (!gc) return false;
   const leaderboardId = LEADERBOARD_ID;
   try {
-    if (typeof gc.showLeaderboard === 'function') {
-      await gc.showLeaderboard(leaderboardId);
+    if (typeof gc.presentLeaderboard === 'function') {
+      await gc.presentLeaderboard(leaderboardId);
       return true;
     }
-    if (typeof gc.showLeaderboards === 'function') {
-      await gc.showLeaderboards({ leaderboardId });
-      return true;
-    }
-    if (typeof gc.openLeaderboard === 'function') {
-      await gc.openLeaderboard(leaderboardId);
+    if (typeof gc.presentGameCenterViewController === 'function') {
+      await gc.presentGameCenterViewController();
       return true;
     }
   } catch {
@@ -114,11 +89,16 @@ export async function getLocalPlayer(): Promise<
 
 export async function submitTestScoreOne(): Promise<boolean> {
   try {
-    await submitTotalScore(1);
-    return true;
+    return await submitTotalScore(1);
   } catch {
     return false;
   }
+}
+
+export function getGameCenterDebugInfo(): { hasModule: boolean; methods: string[]; leaderboardId: string } {
+  const mod = getGameCenter();
+  const methods = mod ? Object.keys(mod).filter((k) => typeof (mod as any)[k] === 'function') : [];
+  return { hasModule: Boolean(mod), methods, leaderboardId: LEADERBOARD_ID };
 }
 
 

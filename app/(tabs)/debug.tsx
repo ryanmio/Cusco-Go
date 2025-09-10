@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, Platform, ScrollView, Alert } from 'react-native';
-import { authenticateGameCenter, getLocalPlayer, isGameCenterAvailable, showLeaderboards, submitTestScoreOne } from '@/lib/leaderboard';
+import { authenticateGameCenter, getLocalPlayer, isGameCenterAvailable, showLeaderboards, submitTestScoreOne, getGameCenterDebugInfo } from '@/lib/leaderboard';
 
 export default function DebugScreen() {
   const [available, setAvailable] = useState<boolean>(false);
   const [player, setPlayer] = useState<any>(null);
   const [lastAction, setLastAction] = useState<string>('');
+  const [debug, setDebug] = useState<{ hasModule: boolean; methods: string[]; leaderboardId: string } | null>(null);
 
   async function refresh() {
     setAvailable(isGameCenterAvailable());
     const p = await getLocalPlayer();
     setPlayer(p);
+    setDebug(getGameCenterDebugInfo());
   }
 
   useEffect(() => {
@@ -24,12 +26,13 @@ export default function DebugScreen() {
       <Text>Available: {String(available)}</Text>
       <Text>Player: {player ? JSON.stringify(player) : 'null'}</Text>
       <Text>Last action: {lastAction}</Text>
+      <Text>Debug: {debug ? JSON.stringify(debug) : 'null'}</Text>
 
       <View style={styles.row}>
-        <Button title="Authenticate" onPress={async () => { setLastAction('authenticate'); await authenticateGameCenter(); await refresh(); }} />
+        <Button title="Authenticate" onPress={async () => { setLastAction('authenticate'); const ok = await authenticateGameCenter(); if (!ok) Alert.alert('Game Center', 'Authentication did not start'); await refresh(); }} />
       </View>
       <View style={styles.row}>
-        <Button title="Submit Test Score (1)" onPress={async () => { setLastAction('submit 1'); const ok = await submitTestScoreOne(); if (!ok) Alert.alert('Game Center', 'Submit failed'); }} />
+        <Button title="Submit Test Score (1)" onPress={async () => { setLastAction('submit 1'); const ok = await submitTestScoreOne(); if (!ok) Alert.alert('Game Center', 'Submit failed'); await refresh(); }} />
       </View>
       <View style={styles.row}>
         <Button title="Show Leaderboard" onPress={async () => { setLastAction('show leaderboard'); const ok = await showLeaderboards(); if (!ok) Alert.alert('Game Center', 'Leaderboards unavailable'); }} />

@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.cuscogo.app",
-      "buildNumber": "5",
+      "buildNumber": "7",
       "entitlements": {
         "com.apple.developer.game-center": true
       },
@@ -53,7 +53,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-game-center"
     ],
     "experiments": {
       "typedRoutes": true

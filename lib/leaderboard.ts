@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 // Single leaderboard identifier: replace with your ASC leaderboard ID
-export const LEADERBOARD_ID = 'dev.cuscogo.app.leaderboard';
+export const LEADERBOARD_ID = 'cuscogoleaderboard1';
 
 type GameCenterModule = any; // Using any to avoid type dependency on the native module
 

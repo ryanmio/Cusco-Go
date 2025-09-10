@@ -36,7 +36,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.6",
-    "expo-game-center": "^1.0.0",
+    "react-native-game-center": "^1.2.3",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-maps": "1.20.1",
     "react-native-reanimated": "~3.17.4",

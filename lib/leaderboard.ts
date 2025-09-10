@@ -1,24 +1,40 @@
-import { Platform } from 'react-native';
-import ExpoGameCenter from 'expo-game-center';
+import { Platform, NativeModules } from 'react-native';
 
 // Single leaderboard identifier: replace with your ASC leaderboard ID
 export const LEADERBOARD_ID = 'cuscogoleaderboard1';
 
 type GameCenterModule = any; // Using any to avoid type dependency on the native module
 
+let cachedModule: GameCenterModule | null | undefined = undefined;
 function getGameCenter(): GameCenterModule | null {
   if (Platform.OS !== 'ios') return null;
-  return (ExpoGameCenter as unknown as GameCenterModule) ?? null;
+  if (cachedModule !== undefined) return cachedModule;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('react-native-game-center');
+    cachedModule = mod?.default ?? mod ?? null;
+  } catch {
+    const nm: any = (NativeModules as any) || {};
+    cachedModule = nm.GameCenter || nm.RNGameCenter || null;
+  }
+  return cachedModule;
 }
 
 export async function authenticateGameCenter(): Promise<boolean> {
   const gc = getGameCenter();
   if (!gc) return false;
   try {
-    // Common method names across libraries
     if (typeof gc.authenticateLocalPlayer === 'function') {
       const ok = await gc.authenticateLocalPlayer();
       return Boolean(ok);
+    }
+    if (typeof gc.signIn === 'function') {
+      await gc.signIn();
+      return true;
+    }
+    if (typeof gc.authenticate === 'function') {
+      await gc.authenticate();
+      return true;
     }
     return false;
   } catch {
@@ -33,8 +49,13 @@ export async function submitTotalScore(score: number): Promise<boolean> {
   if (!leaderboardId) return false;
   try {
     if (typeof gc.submitScore === 'function') {
-      const ok = await gc.submitScore(Math.max(0, Math.floor(score)), leaderboardId);
-      return Boolean(ok);
+      try {
+        const ok = await gc.submitScore(Math.max(0, Math.floor(score)), leaderboardId);
+        return Boolean(ok ?? true);
+      } catch {
+        await gc.submitScore({ leaderboardId, score: Math.max(0, Math.floor(score)) });
+        return true;
+      }
     }
     return false;
   } catch {
@@ -51,8 +72,8 @@ export async function showLeaderboards(): Promise<boolean> {
       await gc.presentLeaderboard(leaderboardId);
       return true;
     }
-    if (typeof gc.presentGameCenterViewController === 'function') {
-      await gc.presentGameCenterViewController();
+    if (typeof gc.showLeaderboard === 'function') {
+      await gc.showLeaderboard(leaderboardId);
       return true;
     }
   } catch {

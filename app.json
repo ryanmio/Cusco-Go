@@ -53,12 +53,6 @@
             "backgroundColor": "#000000"
           }
         }
-      ],
-      [
-        "react-native-games-services",
-        {
-          "gameCenterEnabled": true
-        }
       ]
     ],
     "experiments": {

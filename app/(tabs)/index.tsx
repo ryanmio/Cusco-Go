@@ -6,7 +6,7 @@ import { HUNT_ITEMS } from '@/data/items';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { getLatestCaptureForItem, insertCapture } from '@/lib/db';
-import { getSingleLocationOrNull } from '@/lib/location';
+import { getSingleLocationOrNull, extractGpsFromExif } from '@/lib/location';
 import { CaptureCard } from '@/components/CaptureCard';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -37,11 +37,11 @@ export default function HuntGridScreen() {
       async (index) => {
         try {
           if (index === 1) {
-            const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1 });
-            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title);
+            const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
+            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null);
           } else if (index === 2) {
-            const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1 });
-            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title);
+            const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
+            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null);
           }
         } catch (e: any) {
           Alert.alert('Capture failed', String(e?.message ?? e));
@@ -50,8 +50,9 @@ export default function HuntGridScreen() {
     );
   }
 
-  async function handlePicked(uri: string, itemId: string, title: string) {
-    const loc = await getSingleLocationOrNull();
+  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
+    const exifGps = extractGpsFromExif(pickedExif);
+    const loc = exifGps ?? (await getSingleLocationOrNull());
     const stamp = Date.now();
     const saved = await saveOriginalAndSquareThumbnail(uri, `${itemId}_${stamp}`);
     insertCapture({

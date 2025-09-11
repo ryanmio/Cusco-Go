@@ -6,7 +6,7 @@ import { HUNT_ITEMS } from '@/data/items';
 import { getLatestCaptureForItem, deleteCapture } from '@/lib/db';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
-import { getSingleLocationOrNull } from '@/lib/location';
+import { getSingleLocationOrNull, extractGpsFromExif } from '@/lib/location';
 import { removeFileIfExists } from '@/lib/files';
 
 export default function ItemDetailScreen() {
@@ -73,9 +73,9 @@ export default function ItemDetailScreen() {
         try {
           let result;
           if (index === 1) {
-            result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1 });
+            result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
           } else if (index === 2) {
-            result = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1 });
+            result = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
           }
           
           if (result && !result.canceled && latestCapture) {
@@ -84,7 +84,8 @@ export default function ItemDetailScreen() {
             await removeFileIfExists(latestCapture.thumbnailUri);
             
             // Create new capture
-            const loc = await getSingleLocationOrNull();
+            const exifGps = extractGpsFromExif(result.assets[0].exif ?? null);
+            const loc = exifGps ?? (await getSingleLocationOrNull());
             const stamp = Date.now();
             const saved = await saveOriginalAndSquareThumbnail(result.assets[0].uri, `${item.id}_${stamp}`);
             

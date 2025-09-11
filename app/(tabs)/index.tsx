@@ -29,9 +29,8 @@ export default function HuntGridScreen() {
     // Ensure permissions for camera and media library before presenting options
     await ImagePicker.requestCameraPermissionsAsync();
     await ImagePicker.requestMediaLibraryPermissionsAsync();
-    // Pre-warm location permission and start a fix while user chooses
+    // Pre-warm permission only (starting a fix before opening camera can be suspended)
     await ensureWhenInUsePermission();
-    const preFix = getSingleLocationOrNull();
 
     ActionSheetIOS.showActionSheetWithOptions(
       {
@@ -42,10 +41,10 @@ export default function HuntGridScreen() {
         try {
           if (index === 1) {
             const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null, preFix);
+            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null);
           } else if (index === 2) {
             const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null, preFix);
+            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null);
           }
         } catch (e: any) {
           Alert.alert('Capture failed', String(e?.message ?? e));
@@ -54,10 +53,10 @@ export default function HuntGridScreen() {
     );
   }
 
-  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null, preFixPromise?: Promise<{ latitude: number; longitude: number } | null>) {
+  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
     const exifGps = extractGpsFromExif(pickedExif);
-    // Prefer EXIF; otherwise await the pre-warmed fresh fix
-    const loc = exifGps ?? (await (preFixPromise ?? getSingleLocationOrNull()));
+    // Prefer EXIF; otherwise request a fresh fix now that we're back in foreground
+    const loc = exifGps ?? (await getSingleLocationOrNull());
     const stamp = Date.now();
     const saved = await saveOriginalAndSquareThumbnail(uri, `${itemId}_${stamp}`);
     insertCapture({

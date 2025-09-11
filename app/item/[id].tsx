@@ -25,9 +25,8 @@ export default function ItemDetailScreen() {
   async function onMenuPress() {
     if (!latestCapture) return;
     
-    // Pre-warm location permission and start a fix while user chooses
+    // Pre-warm permission only
     await ensureWhenInUsePermission();
-    const preFix = getSingleLocationOrNull();
 
     ActionSheetIOS.showActionSheetWithOptions(
       {
@@ -89,7 +88,7 @@ export default function ItemDetailScreen() {
             
             // Create new capture
             const exifGps = extractGpsFromExif(result.assets[0].exif ?? null);
-            const loc = exifGps ?? (await preFix);
+            const loc = exifGps ?? (await getSingleLocationOrNull());
             const stamp = Date.now();
             const saved = await saveOriginalAndSquareThumbnail(result.assets[0].uri, `${item.id}_${stamp}`);
             

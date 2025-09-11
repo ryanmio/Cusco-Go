@@ -6,7 +6,8 @@
   "build": {
     "development": {
       "ios": {
-        "simulator": true
+        "simulator": true,
+        "buildConfiguration": "Debug"
       }
     },
     "preview": {
@@ -21,7 +22,11 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6752252602"
+      }
+    }
   }
 }
 

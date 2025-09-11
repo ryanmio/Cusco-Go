@@ -6,7 +6,7 @@ import { HUNT_ITEMS } from '@/data/items';
 import { getLatestCaptureForItem, deleteCapture } from '@/lib/db';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
-import { getSingleLocationOrNull, extractGpsFromExif } from '@/lib/location';
+import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { removeFileIfExists } from '@/lib/files';
 
 export default function ItemDetailScreen() {
@@ -25,6 +25,10 @@ export default function ItemDetailScreen() {
   async function onMenuPress() {
     if (!latestCapture) return;
     
+    // Pre-warm location permission and start a fix while user chooses
+    await ensureWhenInUsePermission();
+    const preFix = getSingleLocationOrNull();
+
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: ['Cancel', 'Delete Capture', 'Replace Photo', 'Save to Photos'],
@@ -85,7 +89,7 @@ export default function ItemDetailScreen() {
             
             // Create new capture
             const exifGps = extractGpsFromExif(result.assets[0].exif ?? null);
-            const loc = exifGps ?? (await getSingleLocationOrNull());
+            const loc = exifGps ?? (await preFix);
             const stamp = Date.now();
             const saved = await saveOriginalAndSquareThumbnail(result.assets[0].uri, `${item.id}_${stamp}`);
             

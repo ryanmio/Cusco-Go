@@ -6,7 +6,7 @@ import { HUNT_ITEMS } from '@/data/items';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { getLatestCaptureForItem, insertCapture } from '@/lib/db';
-import { getSingleLocationOrNull, extractGpsFromExif } from '@/lib/location';
+import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { CaptureCard } from '@/components/CaptureCard';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -29,6 +29,10 @@ export default function HuntGridScreen() {
     // Ensure permissions for camera and media library before presenting options
     await ImagePicker.requestCameraPermissionsAsync();
     await ImagePicker.requestMediaLibraryPermissionsAsync();
+    // Pre-warm location permission and start a fix while user chooses
+    await ensureWhenInUsePermission();
+    const preFix = getSingleLocationOrNull();
+
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: ['Cancel', 'Take Photo', 'Choose from Library'],
@@ -38,10 +42,10 @@ export default function HuntGridScreen() {
         try {
           if (index === 1) {
             const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null);
+            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null, preFix);
           } else if (index === 2) {
             const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null);
+            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null, preFix);
           }
         } catch (e: any) {
           Alert.alert('Capture failed', String(e?.message ?? e));
@@ -50,9 +54,10 @@ export default function HuntGridScreen() {
     );
   }
 
-  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
+  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null, preFixPromise?: Promise<{ latitude: number; longitude: number } | null>) {
     const exifGps = extractGpsFromExif(pickedExif);
-    const loc = exifGps ?? (await getSingleLocationOrNull());
+    // Prefer EXIF; otherwise await the pre-warmed fresh fix
+    const loc = exifGps ?? (await (preFixPromise ?? getSingleLocationOrNull()));
     const stamp = Date.now();
     const saved = await saveOriginalAndSquareThumbnail(uri, `${itemId}_${stamp}`);
     insertCapture({

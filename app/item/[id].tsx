@@ -1,5 +1,7 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, ActionSheetIOS, Alert } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, ActionSheetIOS, Alert, Animated, Easing, Dimensions } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { HUNT_ITEMS } from '@/data/items';
@@ -10,9 +12,12 @@ import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission 
 import { removeFileIfExists } from '@/lib/files';
 
 export default function ItemDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, celebrate } = useLocalSearchParams<{ id: string; celebrate?: string }>();
   const item = HUNT_ITEMS.find(i => i.id === id);
   const latestCapture = id ? getLatestCaptureForItem(id) : null;
+  const [confettiKeys, setConfettiKeys] = useState<number[]>([]);
+  const toastAnim = useRef(new Animated.Value(0)).current;
+  const screenWidth = useMemo(() => Dimensions.get('window').width, []);
 
   if (!item) {
     return (
@@ -20,6 +25,31 @@ export default function ItemDetailScreen() {
         <Text>Item not found</Text>
       </View>
     );
+  }
+
+  useEffect(() => {
+    if (celebrate) {
+      // Trigger toast + confetti + stronger haptics
+      try {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        setTimeout(() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }, 120);
+      } catch {}
+
+      toastAnim.stopAnimation();
+      toastAnim.setValue(0);
+      Animated.sequence([
+        Animated.timing(toastAnim, { toValue: 1, duration: 180, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        Animated.delay(1400),
+        Animated.timing(toastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+      ]).start();
+      setConfettiKeys((k) => [...k, Date.now()]);
+    }
+  }, [celebrate, toastAnim]);
+
+  function removeConfetti(key: number) {
+    setConfettiKeys((prev) => prev.filter((k) => k !== key));
   }
 
   async function onMenuPress() {
@@ -132,7 +162,8 @@ export default function ItemDetailScreen() {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
       <View style={styles.imageContainer}>
         <Image 
           source={latestCapture ? { uri: latestCapture.thumbnailUri } : item.placeholder} 
@@ -164,7 +195,89 @@ export default function ItemDetailScreen() {
           </Pressable>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+      {/* Toast */}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.toast,
+          {
+            opacity: toastAnim,
+            transform: [
+              {
+                translateY: toastAnim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] })
+              },
+            ],
+          },
+        ]}
+      >
+        <Text style={styles.toastText}>Captured!</Text>
+      </Animated.View>
+      {/* Confetti */}
+      {confettiKeys.map((k) => (
+        <ConfettiBurst key={k} width={screenWidth} onDone={() => removeConfetti(k)} />
+      ))}
+    </View>
+  );
+}
+
+function ConfettiBurst({ width, onDone }: { width: number; onDone: () => void }) {
+  const pieces = 24;
+  const colors = ['#FFD166', '#EF476F', '#06D6A0', '#118AB2', '#8338EC'];
+  const animations = useRef(
+    Array.from({ length: pieces }, () => ({
+      x: new Animated.Value(width / 2),
+      y: new Animated.Value(0),
+      r: new Animated.Value(0),
+      o: new Animated.Value(1),
+    }))
+  ).current;
+
+  useEffect(() => {
+    const anims = animations.map(({ x, y, r, o }) => {
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const spread = 130 + Math.random() * 70; // degrees
+      const angle = ((-90 + dir * spread) * Math.PI) / 180;
+      const distance = 160 + Math.random() * 140;
+      const dx = Math.cos(angle) * distance;
+      const dy = Math.sin(angle) * distance;
+      const duration = 1100 + Math.random() * 700;
+      return Animated.parallel([
+        Animated.timing(x, { toValue: width / 2 + dx, duration, easing: Easing.out(Easing.quad), useNativeDriver: false }),
+        Animated.timing(y, { toValue: 80 + dy, duration, easing: Easing.out(Easing.quad), useNativeDriver: false }),
+        Animated.timing(r, { toValue: 360 * (Math.random() > 0.5 ? 1 : -1), duration, easing: Easing.linear, useNativeDriver: false }),
+        Animated.timing(o, { toValue: 0, duration: duration + 250, easing: Easing.linear, useNativeDriver: false }),
+      ]);
+    });
+    Animated.stagger(10, anims).start(() => onDone());
+  }, [animations, onDone, width]);
+
+  return (
+    <View pointerEvents="none" style={styles.confettiContainer}>
+      {animations.map(({ x, y, r, o }, i) => {
+        const size = 6 + Math.random() * 8;
+        const bg = colors[i % colors.length];
+        return (
+          <Animated.View
+            key={i}
+            style={{
+              position: 'absolute',
+              left: x,
+              top: y,
+              width: size,
+              height: size,
+              backgroundColor: bg,
+              borderRadius: 2,
+              opacity: o,
+              transform: [
+                { rotate: r.interpolate({ inputRange: [0, 360], outputRange: ['0deg', '360deg'] }) },
+                { translateX: new Animated.Value(0) },
+              ],
+            }}
+          />
+        );
+      })}
+    </View>
   );
 }
 

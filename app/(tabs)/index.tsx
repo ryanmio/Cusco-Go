@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator, Animated, Easing, Dimensions } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { HUNT_ITEMS } from '@/data/items';
@@ -10,7 +10,6 @@ import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission 
 import { CaptureCard } from '@/components/CaptureCard';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import * as Haptics from 'expo-haptics';
 
 export default function HuntGridScreen() {
   const [version, setVersion] = useState(0);
@@ -19,10 +18,6 @@ export default function HuntGridScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const [processingItemId, setProcessingItemId] = useState<string | null>(null);
   const [optimisticThumbUri, setOptimisticThumbUri] = useState<string | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const toastAnim = useRef(new Animated.Value(0)).current;
-  const [confettiKeys, setConfettiKeys] = useState<number[]>([]);
-  const screenWidth = useMemo(() => Dimensions.get('window').width, []);
 
   useEffect(() => {
     ensureAppDirs();
@@ -80,12 +75,8 @@ export default function HuntGridScreen() {
       longitude: exifGps?.longitude ?? null,
     });
     setVersion(v => v + 1);
-    // Celebration feedback
-    triggerCelebration();
-    // Navigate to the item's page so the user can see details immediately
-    setTimeout(() => {
-      router.push(`/item/${itemId}`);
-    }, 200);
+    // Navigate to the item's page and celebrate there so it is visible
+    router.push(`/item/${itemId}?celebrate=1`);
     // If no EXIF GPS, resolve a fresh fix in the background and update row
     if (!exifGps) {
       getSingleLocationOrNull().then((loc) => {
@@ -139,32 +130,6 @@ export default function HuntGridScreen() {
     );
   }
 
-  function triggerCelebration() {
-    // Toast
-    setShowToast(true);
-    toastAnim.stopAnimation();
-    toastAnim.setValue(0);
-    Animated.sequence([
-      Animated.timing(toastAnim, { toValue: 1, duration: 180, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-      Animated.delay(1200),
-      Animated.timing(toastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
-    ]).start(() => setShowToast(false));
-
-    // Confetti
-    setConfettiKeys((prev) => [...prev, Date.now()]);
-
-    // Haptics: light selection + success impact a short moment later
-    try {
-      Haptics.selectionAsync();
-      setTimeout(() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }, 150);
-    } catch {}
-  }
-
-  function removeConfetti(key: number) {
-    setConfettiKeys((prev) => prev.filter((k) => k !== key));
-  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -191,89 +156,6 @@ export default function HuntGridScreen() {
         numColumns={2}
         renderItem={renderCard}
       />
-      {/* Toast */}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.toast,
-          {
-            opacity: toastAnim,
-            transform: [
-              {
-                translateY: toastAnim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] })
-              },
-            ],
-          },
-        ]}
-      >
-        <Text style={styles.toastText}>Captured!</Text>
-      </Animated.View>
-      {/* Confetti bursts */}
-      {confettiKeys.map((k) => (
-        <ConfettiBurst key={k} width={screenWidth} onDone={() => removeConfetti(k)} />
-      ))}
-    </View>
-  );
-}
-
-function ConfettiBurst({ width, onDone }: { width: number; onDone: () => void }) {
-  const pieces = 18;
-  const colors = ['#FFD166', '#EF476F', '#06D6A0', '#118AB2', '#8338EC'];
-  const animations = useRef(
-    Array.from({ length: pieces }, () => ({
-      x: new Animated.Value(width / 2),
-      y: new Animated.Value(0),
-      r: new Animated.Value(0),
-      o: new Animated.Value(1),
-    }))
-  ).current;
-
-  useEffect(() => {
-    const anims = animations.map(({ x, y, r, o }, idx) => {
-      const dir = Math.random() < 0.5 ? -1 : 1;
-      const spread = 120 + Math.random() * 60; // degrees
-      const angle = ((-90 + dir * spread) * Math.PI) / 180;
-      const distance = 140 + Math.random() * 120;
-      const dx = Math.cos(angle) * distance;
-      const dy = Math.sin(angle) * distance; // negative up
-      const duration = 900 + Math.random() * 600;
-      return Animated.parallel([
-        Animated.timing(x, { toValue: width / 2 + dx, duration, easing: Easing.out(Easing.quad), useNativeDriver: false }),
-        Animated.timing(y, { toValue: 60 + dy, duration, easing: Easing.out(Easing.quad), useNativeDriver: false }),
-        Animated.timing(r, { toValue: 360 * (Math.random() > 0.5 ? 1 : -1), duration, easing: Easing.linear, useNativeDriver: false }),
-        Animated.timing(o, { toValue: 0, duration: duration + 200, easing: Easing.linear, useNativeDriver: false }),
-      ]);
-    });
-    Animated.stagger(12, anims).start(() => onDone());
-  }, [animations, onDone, width]);
-
-  return (
-    <View pointerEvents="none" style={styles.confettiContainer}>
-      {animations.map(({ x, y, r, o }, i) => {
-        const size = 6 + Math.random() * 6;
-        const bg = colors[i % colors.length];
-        return (
-          <Animated.View
-            key={i}
-            style={{
-              position: 'absolute',
-              left: x,
-              top: y,
-              width: size,
-              height: size,
-              backgroundColor: bg,
-              borderRadius: 2,
-              opacity: o,
-              transform: [
-                {
-                  rotate: r.interpolate({ inputRange: [0, 360], outputRange: ['0deg', '360deg'] }),
-                },
-                { translateX: new Animated.Value(0) },
-              ],
-            }}
-          />
-        );
-      })}
     </View>
   );
 }
@@ -310,21 +192,4 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   processingText: { color: '#fff', marginLeft: 8, fontWeight: '600' },
-  toast: {
-    position: 'absolute',
-    top: 12,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.85)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
-  },
-  toastText: { color: '#fff', fontWeight: '700' },
-  confettiContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 160,
-  },
 });

@@ -1,6 +1,6 @@
-import { useLocalSearchParams, router } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, ActionSheetIOS, Alert, Animated, Easing, Dimensions } from 'react-native';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, ActionSheetIOS, Alert, Animated, Easing, Dimensions, InteractionManager } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
@@ -27,26 +27,46 @@ export default function ItemDetailScreen() {
     );
   }
 
-  useEffect(() => {
-    if (celebrate) {
-      // Trigger toast + confetti + stronger haptics
-      try {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        setTimeout(() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }, 120);
-      } catch {}
+  const didCelebrate = useRef(false);
 
-      toastAnim.stopAnimation();
-      toastAnim.setValue(0);
-      Animated.sequence([
-        Animated.timing(toastAnim, { toValue: 1, duration: 180, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-        Animated.delay(1400),
-        Animated.timing(toastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
-      ]).start();
-      setConfettiKeys((k) => [...k, Date.now()]);
-    }
-  }, [celebrate, toastAnim]);
+  const triggerCelebration = useCallback(() => {
+    // Haptics (celebratory)
+    try {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      }, 120);
+    } catch {}
+
+    // Toast
+    toastAnim.stopAnimation();
+    toastAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(toastAnim, { toValue: 1, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      Animated.delay(1500),
+      Animated.timing(toastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+    ]).start();
+
+    // Confetti
+    setConfettiKeys((k) => [...k, Date.now()]);
+  }, [toastAnim]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (celebrate && !didCelebrate.current) {
+        didCelebrate.current = true;
+        InteractionManager.runAfterInteractions(() => {
+          setTimeout(() => {
+            triggerCelebration();
+            // Clean URL param to avoid retrigger on back/forward
+            if (id) {
+              setTimeout(() => router.replace(`/item/${id}`), 1600);
+            }
+          }, 60);
+        });
+      }
+    }, [celebrate, id, triggerCelebration])
+  );
 
   function removeConfetti(key: number) {
     setConfettiKeys((prev) => prev.filter((k) => k !== key));

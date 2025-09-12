@@ -100,6 +100,10 @@ export default function HuntGridScreen() {
     setVersion(v => v + 1);
     // Celebration feedback
     triggerCelebration();
+    // Navigate to the item's page so the user can see details immediately
+    setTimeout(() => {
+      router.push(`/item/${itemId}`);
+    }, 200);
     // If no EXIF GPS, resolve a fresh fix in the background and update row
     if (!exifGps) {
       getSingleLocationOrNull().then((loc) => {

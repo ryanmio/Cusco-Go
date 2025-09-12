@@ -10,6 +10,7 @@ import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission 
 import { CaptureCard } from '@/components/CaptureCard';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import * as Haptics from 'expo-haptics';
 
 export default function HuntGridScreen() {
   const [version, setVersion] = useState(0);
@@ -57,25 +58,6 @@ export default function HuntGridScreen() {
         }
       }
     );
-  }
-
-  function triggerCelebration() {
-    // Toast
-    setShowToast(true);
-    toastAnim.stopAnimation();
-    toastAnim.setValue(0);
-    Animated.sequence([
-      Animated.timing(toastAnim, { toValue: 1, duration: 180, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-      Animated.delay(1200),
-      Animated.timing(toastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
-    ]).start(() => setShowToast(false));
-
-    // Confetti
-    setConfettiKeys((prev) => [...prev, Date.now()]);
-  }
-
-  function removeConfetti(key: number) {
-    setConfettiKeys((prev) => prev.filter((k) => k !== key));
   }
 
   async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
@@ -155,6 +137,33 @@ export default function HuntGridScreen() {
         )}
       </View>
     );
+  }
+
+  function triggerCelebration() {
+    // Toast
+    setShowToast(true);
+    toastAnim.stopAnimation();
+    toastAnim.setValue(0);
+    Animated.sequence([
+      Animated.timing(toastAnim, { toValue: 1, duration: 180, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      Animated.delay(1200),
+      Animated.timing(toastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+    ]).start(() => setShowToast(false));
+
+    // Confetti
+    setConfettiKeys((prev) => [...prev, Date.now()]);
+
+    // Haptics: light selection + success impact a short moment later
+    try {
+      Haptics.selectionAsync();
+      setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }, 150);
+    } catch {}
+  }
+
+  function removeConfetti(key: number) {
+    setConfettiKeys((prev) => prev.filter((k) => k !== key));
   }
 
   return (

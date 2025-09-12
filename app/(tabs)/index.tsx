@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ActionSheetIOS, Alert, FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { HUNT_ITEMS } from '@/data/items';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
-import { getLatestCaptureForItem, insertCapture } from '@/lib/db';
+import { addCapturesListener, getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { CaptureCard } from '@/components/CaptureCard';
 import Colors from '@/constants/Colors';
@@ -16,6 +16,8 @@ export default function HuntGridScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const [processingItemId, setProcessingItemId] = useState<string | null>(null);
+  const [optimisticThumbUri, setOptimisticThumbUri] = useState<string | null>(null);
 
   useEffect(() => {
     ensureAppDirs();
@@ -54,21 +56,37 @@ export default function HuntGridScreen() {
   }
 
   async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
-    const exifGps = extractGpsFromExif(pickedExif);
-    // Prefer EXIF; otherwise request a fresh fix now that we're back in foreground
-    const loc = exifGps ?? (await getSingleLocationOrNull());
+    setProcessingItemId(itemId);
+    setOptimisticThumbUri(null);
     const stamp = Date.now();
+    // Start EXIF parse immediately
+    const exifGps = extractGpsFromExif(pickedExif);
+    // Save files first for snappier UI, then fetch GPS if needed
     const saved = await saveOriginalAndSquareThumbnail(uri, `${itemId}_${stamp}`);
-    insertCapture({
+    setOptimisticThumbUri(saved.thumbnailUri);
+    // Insert row with whatever location we have synchronously (EXIF or null)
+    const id = insertCapture({
       itemId,
       title,
       originalUri: saved.originalUri,
       thumbnailUri: saved.thumbnailUri,
       createdAt: stamp,
-      latitude: loc?.latitude ?? null,
-      longitude: loc?.longitude ?? null,
+      latitude: exifGps?.latitude ?? null,
+      longitude: exifGps?.longitude ?? null,
     });
     setVersion(v => v + 1);
+    // If no EXIF GPS, resolve a fresh fix in the background and update row
+    if (!exifGps) {
+      getSingleLocationOrNull().then((loc) => {
+        if (loc) {
+          updateCaptureLocation(id, loc.latitude, loc.longitude);
+        }
+      }).finally(() => {
+        setProcessingItemId(null);
+      });
+    } else {
+      setProcessingItemId(null);
+    }
   }
 
   function onCardPress(item: any) {
@@ -83,13 +101,27 @@ export default function HuntGridScreen() {
   }
 
   function renderCard({ item }: any) {
+    const isProcessing = processingItemId === item.id;
+    const latest = getLatestCaptureForItem(item.id);
+    const thumbSource = isProcessing && optimisticThumbUri
+      ? { uri: optimisticThumbUri }
+      : latest
+      ? { uri: latest.thumbnailUri }
+      : item.placeholder;
     return (
-      <CaptureCard 
-        id={item.id} 
-        title={item.title} 
-        placeholder={item.placeholder} 
-        onPress={() => onCardPress(item)} 
-      />
+      <View style={{ flex: 1 }}>
+        <CaptureCard 
+          id={item.id} 
+          title={item.title} 
+          placeholder={thumbSource} 
+          onPress={() => onCardPress(item)} 
+        />
+        {isProcessing && (
+          <View style={styles.processingOverlay} pointerEvents="none">
+            <Image source={thumbSource} style={styles.processingImage} resizeMode="cover" />
+          </View>
+        )}
+      </View>
     );
   }
 
@@ -133,4 +165,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   list: { padding: 8 },
+  processingOverlay: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    right: 8,
+    bottom: 8,
+    borderRadius: 12,
+    overflow: 'hidden',
+    opacity: 0.0
+  },
+  processingImage: { flex: 1, width: '100%', height: '100%' },
 });

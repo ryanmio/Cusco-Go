@@ -86,6 +86,15 @@ export function deleteCapture(id: number) {
   emitCapturesChanged();
 }
 
+export function updateCaptureLocation(id: number, latitude: number | null, longitude: number | null) {
+  const database = getDb();
+  database.runSync(
+    `UPDATE captures SET latitude = ?, longitude = ? WHERE id = ?;`,
+    [latitude ?? null, longitude ?? null, id]
+  );
+  emitCapturesChanged();
+}
+
 export function getLatestCaptureForItem(itemId: string): CaptureRow | null {
   const database = getDb();
   const rows = database.getAllSync<CaptureRow>(

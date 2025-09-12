@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
-import { listCaptures } from '@/lib/db';
+import { addCapturesListener, listCaptures } from '@/lib/db';
 
 export default function MapTab() {
   const [online, setOnline] = useState<boolean | null>(null);
@@ -21,6 +21,10 @@ export default function MapTab() {
   useFocusEffect(
     React.useCallback(() => {
       loadPoints();
+      const unsubscribe = addCapturesListener(() => {
+        loadPoints();
+      });
+      return unsubscribe;
     }, [])
   );
 

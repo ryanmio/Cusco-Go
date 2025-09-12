@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 
 type CelebrateOptions = {
@@ -22,6 +23,7 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
   const [toastMessage, setToastMessage] = useState<string>('Captured!');
   const toastAnim = useRef(new Animated.Value(0)).current;
   const screenWidth = useMemo(() => Dimensions.get('window').width, []);
+  const insets = useSafeAreaInsets();
 
   const celebrate = useCallback((options?: CelebrateOptions) => {
     const delay = Math.max(0, options?.delayMs ?? 280);
@@ -60,6 +62,7 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
           style={[
             styles.toast,
             {
+              top: insets.top + 12,
               opacity: toastAnim,
               transform: [
                 {
@@ -72,14 +75,14 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
           <Text style={styles.toastText}>{toastMessage}</Text>
         </Animated.View>
         {confettiKeys.map((k) => (
-          <ConfettiBurst key={k} width={screenWidth} onDone={() => removeConfetti(k)} />
+          <ConfettiBurst key={k} width={screenWidth} onDone={() => removeConfetti(k)} topOffset={insets.top} />
         ))}
       </View>
     </CelebrationContext.Provider>
   );
 }
 
-function ConfettiBurst({ width, onDone }: { width: number; onDone: () => void }) {
+function ConfettiBurst({ width, onDone, topOffset = 0 }: { width: number; onDone: () => void; topOffset?: number }) {
   const pieces = 24;
   const colors = ['#FFD166', '#EF476F', '#06D6A0', '#118AB2', '#8338EC'];
   const animations = useRef(
@@ -111,7 +114,7 @@ function ConfettiBurst({ width, onDone }: { width: number; onDone: () => void })
   }, [animations, onDone, width]);
 
   return (
-    <View pointerEvents="none" style={styles.confettiContainer}>
+    <View pointerEvents="none" style={[styles.confettiContainer, { top: topOffset }]}>
       {animations.map(({ x, y, r, o }, i) => {
         const size = 6 + Math.random() * 8;
         const bg = colors[i % colors.length];
@@ -142,7 +145,6 @@ function ConfettiBurst({ width, onDone }: { width: number; onDone: () => void })
 const styles = StyleSheet.create({
   toast: {
     position: 'absolute',
-    top: 12,
     alignSelf: 'center',
     backgroundColor: 'rgba(0,0,0,0.85)',
     paddingHorizontal: 14,

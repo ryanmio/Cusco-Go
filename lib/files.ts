@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 export async function ensureAppDirs() {
   const dataDir = `${FileSystem.documentDirectory}data/`;

@@ -6,7 +6,7 @@ import { useCelebration } from '@/components/CelebrationProvider';
 import { HUNT_ITEMS } from '@/data/items';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
-import { getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
+import { addCapturesListener, getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { CaptureCard } from '@/components/CaptureCard';
 import Colors from '@/constants/Colors';
@@ -23,6 +23,14 @@ export default function HuntGridScreen() {
 
   useEffect(() => {
     ensureAppDirs();
+  }, []);
+
+  // Re-render when captures change (insert/delete/update) so cards reflect latest state
+  useEffect(() => {
+    const unsubscribe = addCapturesListener(() => {
+      setVersion((v) => v + 1);
+    });
+    return unsubscribe;
   }, []);
 
   const filteredItems = HUNT_ITEMS.filter(item => 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
+import { useCelebration } from '@/components/CelebrationProvider';
 import { HUNT_ITEMS } from '@/data/items';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
@@ -12,6 +13,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export default function HuntGridScreen() {
+  const { celebrate } = useCelebration();
   const [version, setVersion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const colorScheme = useColorScheme();
@@ -75,8 +77,10 @@ export default function HuntGridScreen() {
       longitude: exifGps?.longitude ?? null,
     });
     setVersion(v => v + 1);
-    // Navigate to the item's page and celebrate there so it is visible
-    router.push(`/item/${itemId}?celebrate=1`);
+    // Trigger global celebration slightly delayed to allow nav to settle
+    celebrate({ delayMs: 260, message: 'Captured!' });
+    // Navigate to the item's page
+    router.push(`/item/${itemId}`);
     // If no EXIF GPS, resolve a fresh fix in the background and update row
     if (!exifGps) {
       getSingleLocationOrNull().then((loc) => {

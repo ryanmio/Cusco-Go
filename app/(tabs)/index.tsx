@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useEffect, useState, useRef } from 'react';
+import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity, Animated, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useCelebration } from '@/components/CelebrationProvider';
@@ -17,6 +17,10 @@ export default function HuntGridScreen() {
   const [version, setVersion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'animal' | 'plant' | 'ruins'>('all');
+  const headerAnim = useRef(new Animated.Value(0)).current; // 0 shown, 1 hidden
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const lastScrollYRef = useRef(0);
+  const headerHiddenRef = useRef(false);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const [processingItemId, setProcessingItemId] = useState<string | null>(null);
@@ -43,6 +47,33 @@ export default function HuntGridScreen() {
     const matchesCategory = categoryFilter === 'all' ? true : item.category === activeCategory;
     return matchesCategory;
   });
+
+  const headerTranslateY = headerAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -headerHeight] });
+  const listMarginTop = headerAnim.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] });
+
+  function toggleHeader(hidden: boolean) {
+    if (headerHiddenRef.current === hidden) return;
+    headerHiddenRef.current = hidden;
+    Animated.timing(headerAnim, {
+      toValue: hidden ? 1 : 0,
+      duration: 180,
+      useNativeDriver: false,
+    }).start();
+  }
+
+  function onListScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
+    const y = e.nativeEvent.contentOffset.y;
+    const dy = y - lastScrollYRef.current;
+    lastScrollYRef.current = y;
+    if (Math.abs(dy) < 6) return;
+    if (dy > 0) {
+      // scrolling down
+      toggleHeader(true);
+    } else {
+      // scrolling up
+      toggleHeader(false);
+    }
+  }
 
   async function onPick(itemId: string, title: string) {
     ActionSheetIOS.showActionSheetWithOptions(
@@ -154,92 +185,103 @@ export default function HuntGridScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={[
-            styles.searchInput,
-            {
-              backgroundColor: colors.searchBackground,
-              color: colors.searchText,
-              borderColor: colors.border,
-            }
-          ]}
-          placeholder="Search items..."
-          placeholderTextColor={colors.searchPlaceholder}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
-      {!isSearching && (
-        <View style={[styles.filterContainer]}
-        >
-          <TouchableOpacity
-            onPress={() => setCategoryFilter('all')}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: categoryFilter === 'all' ? colors.tint : colors.border,
-              backgroundColor: categoryFilter === 'all' ? colors.tint : colors.searchBackground,
-            }}
-          >
-            <Text style={{
-              fontWeight: '600',
-              color: categoryFilter === 'all' ? '#fff' : colors.searchText,
-            }}>All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setCategoryFilter('animal')}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: categoryFilter === 'animal' ? colors.tint : colors.border,
-              backgroundColor: categoryFilter === 'animal' ? colors.tint : colors.searchBackground,
-            }}
-          >
-            <Text style={{
-              fontWeight: '600',
-              color: categoryFilter === 'animal' ? '#fff' : colors.searchText,
-            }}>Animals</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setCategoryFilter('plant')}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: categoryFilter === 'plant' ? colors.tint : colors.border,
-              backgroundColor: categoryFilter === 'plant' ? colors.tint : colors.searchBackground,
-            }}
-          >
-            <Text style={{
-              fontWeight: '600',
-              color: categoryFilter === 'plant' ? '#fff' : colors.searchText,
-            }}>Plants</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setCategoryFilter('ruins')}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: categoryFilter === 'ruins' ? colors.tint : colors.border,
-              backgroundColor: categoryFilter === 'ruins' ? colors.tint : colors.searchBackground,
-            }}
-          >
-            <Text style={{
-              fontWeight: '600',
-              color: categoryFilter === 'ruins' ? '#fff' : colors.searchText,
-            }}>Ruins</Text>
-          </TouchableOpacity>
+      <Animated.View
+        onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
+        style={{
+          transform: [{ translateY: headerTranslateY }],
+          backgroundColor: colors.background,
+        }}
+      >
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={[
+              styles.searchInput,
+              {
+                backgroundColor: colors.searchBackground,
+                color: colors.searchText,
+                borderColor: colors.border,
+              }
+            ]}
+            placeholder="Search items..."
+            placeholderTextColor={colors.searchPlaceholder}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         </View>
-      )}
-      <FlatList
+        {!isSearching && (
+          <View style={[styles.filterContainer]}
+          >
+            <TouchableOpacity
+              onPress={() => setCategoryFilter('all')}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: categoryFilter === 'all' ? colors.tint : colors.border,
+                backgroundColor: categoryFilter === 'all' ? colors.tint : colors.searchBackground,
+              }}
+            >
+              <Text style={{
+                fontWeight: '600',
+                color: categoryFilter === 'all' ? '#fff' : colors.searchText,
+              }}>All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setCategoryFilter('animal')}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: categoryFilter === 'animal' ? colors.tint : colors.border,
+                backgroundColor: categoryFilter === 'animal' ? colors.tint : colors.searchBackground,
+              }}
+            >
+              <Text style={{
+                fontWeight: '600',
+                color: categoryFilter === 'animal' ? '#fff' : colors.searchText,
+              }}>Animals</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setCategoryFilter('plant')}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: categoryFilter === 'plant' ? colors.tint : colors.border,
+                backgroundColor: categoryFilter === 'plant' ? colors.tint : colors.searchBackground,
+              }}
+            >
+              <Text style={{
+                fontWeight: '600',
+                color: categoryFilter === 'plant' ? '#fff' : colors.searchText,
+              }}>Plants</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setCategoryFilter('ruins')}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: categoryFilter === 'ruins' ? colors.tint : colors.border,
+                backgroundColor: categoryFilter === 'ruins' ? colors.tint : colors.searchBackground,
+              }}
+            >
+              <Text style={{
+                fontWeight: '600',
+                color: categoryFilter === 'ruins' ? '#fff' : colors.searchText,
+              }}>Ruins</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </Animated.View>
+      <Animated.FlatList
+        style={{ marginTop: listMarginTop }}
+        onScroll={onListScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={styles.list}
         data={filteredItems}
         keyExtractor={(i) => i.id + ':' + version}

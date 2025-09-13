@@ -17,10 +17,10 @@ export default function HuntGridScreen() {
   const [version, setVersion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'animal' | 'plant' | 'ruins'>('all');
-  const headerAnim = useRef(new Animated.Value(0)).current; // 0 shown, 1 hidden
+  const headerOffset = useRef(new Animated.Value(0)).current; // px hidden: 0..headerHeight
   const [headerHeight, setHeaderHeight] = useState(0);
   const lastScrollYRef = useRef(0);
-  const headerHiddenRef = useRef(false);
+  const headerOffsetRef = useRef(0);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const [processingItemId, setProcessingItemId] = useState<string | null>(null);
@@ -48,31 +48,17 @@ export default function HuntGridScreen() {
     return matchesCategory;
   });
 
-  const headerTranslateY = headerAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -headerHeight] });
-  const listMarginTop = headerAnim.interpolate({ inputRange: [0, 1], outputRange: [headerHeight, 0] });
-
-  function toggleHeader(hidden: boolean) {
-    if (headerHiddenRef.current === hidden) return;
-    headerHiddenRef.current = hidden;
-    Animated.timing(headerAnim, {
-      toValue: hidden ? 1 : 0,
-      duration: 180,
-      useNativeDriver: false,
-    }).start();
-  }
+  const headerTranslateY = Animated.multiply(headerOffset, -1);
+  const listMarginTop = Animated.subtract(headerHeight, headerOffset);
 
   function onListScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
     const y = e.nativeEvent.contentOffset.y;
     const dy = y - lastScrollYRef.current;
     lastScrollYRef.current = y;
-    if (Math.abs(dy) < 6) return;
-    if (dy > 0) {
-      // scrolling down
-      toggleHeader(true);
-    } else {
-      // scrolling up
-      toggleHeader(false);
-    }
+    if (Math.abs(dy) < 1) return;
+    const next = Math.max(0, Math.min(headerOffsetRef.current + dy, headerHeight));
+    headerOffsetRef.current = next;
+    headerOffset.setValue(next);
   }
 
   async function onPick(itemId: string, title: string) {

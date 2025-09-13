@@ -38,25 +38,27 @@ export default function HuntGridScreen() {
   );
 
   async function onPick(itemId: string, title: string) {
-    // Ensure permissions for camera and media library before presenting options
-    await ImagePicker.requestCameraPermissionsAsync();
-    await ImagePicker.requestMediaLibraryPermissionsAsync();
-    // Pre-warm permission only (starting a fix before opening camera can be suspended)
-    await ensureWhenInUsePermission();
-
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: ['Cancel', 'Take Photo', 'Choose from Library'],
+        options: ['Cancel', 'Take Photo', 'Choose from Library', 'Details'],
         cancelButtonIndex: 0,
       },
       async (index) => {
         try {
           if (index === 1) {
+            // Request permissions lazily when needed
+            await ImagePicker.requestCameraPermissionsAsync();
+            // Pre-warm location permission only when capturing
+            await ensureWhenInUsePermission();
             const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
             if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null);
           } else if (index === 2) {
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
             const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
             if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null);
+          } else if (index === 3) {
+            // Navigate to item details page
+            router.push(`/item/${itemId}`);
           }
         } catch (e: any) {
           Alert.alert('Capture failed', String(e?.message ?? e));

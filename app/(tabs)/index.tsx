@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
+import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useCelebration } from '@/components/CelebrationProvider';
@@ -16,6 +16,7 @@ export default function HuntGridScreen() {
   const { celebrate } = useCelebration();
   const [version, setVersion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'animal' | 'plant' | 'ruins'>('all');
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const [processingItemId, setProcessingItemId] = useState<string | null>(null);
@@ -33,9 +34,15 @@ export default function HuntGridScreen() {
     return unsubscribe;
   }, []);
 
-  const filteredItems = HUNT_ITEMS.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const isSearching = searchQuery.trim().length > 0;
+  const filteredItems = HUNT_ITEMS.filter((item) => {
+    if (isSearching) {
+      return item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    const activeCategory = categoryFilter === 'ruins' ? 'place' : categoryFilter;
+    const matchesCategory = categoryFilter === 'all' ? true : item.category === activeCategory;
+    return matchesCategory;
+  });
 
   async function onPick(itemId: string, title: string) {
     ActionSheetIOS.showActionSheetWithOptions(
@@ -163,6 +170,75 @@ export default function HuntGridScreen() {
           onChangeText={setSearchQuery}
         />
       </View>
+      {!isSearching && (
+        <View style={[styles.filterContainer]}
+        >
+          <TouchableOpacity
+            onPress={() => setCategoryFilter('all')}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: categoryFilter === 'all' ? colors.tint : colors.border,
+              backgroundColor: categoryFilter === 'all' ? colors.tint : colors.searchBackground,
+            }}
+          >
+            <Text style={{
+              fontWeight: '600',
+              color: categoryFilter === 'all' ? '#fff' : colors.searchText,
+            }}>All</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setCategoryFilter('animal')}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: categoryFilter === 'animal' ? colors.tint : colors.border,
+              backgroundColor: categoryFilter === 'animal' ? colors.tint : colors.searchBackground,
+            }}
+          >
+            <Text style={{
+              fontWeight: '600',
+              color: categoryFilter === 'animal' ? '#fff' : colors.searchText,
+            }}>Animals</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setCategoryFilter('plant')}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: categoryFilter === 'plant' ? colors.tint : colors.border,
+              backgroundColor: categoryFilter === 'plant' ? colors.tint : colors.searchBackground,
+            }}
+          >
+            <Text style={{
+              fontWeight: '600',
+              color: categoryFilter === 'plant' ? '#fff' : colors.searchText,
+            }}>Plants</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setCategoryFilter('ruins')}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: categoryFilter === 'ruins' ? colors.tint : colors.border,
+              backgroundColor: categoryFilter === 'ruins' ? colors.tint : colors.searchBackground,
+            }}
+          >
+            <Text style={{
+              fontWeight: '600',
+              color: categoryFilter === 'ruins' ? '#fff' : colors.searchText,
+            }}>Ruins</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <FlatList
         contentContainerStyle={styles.list}
         data={filteredItems}
@@ -183,6 +259,13 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     fontSize: 16,
     borderWidth: 1,
+  },
+  filterContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
   },
   list: { padding: 8 },
   processingOverlay: {

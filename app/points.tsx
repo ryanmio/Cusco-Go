@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { addCapturesListener, listDistinctCapturedItemIds } from '@/lib/db';
@@ -30,6 +31,7 @@ export default function PointsScreen() {
   }, []);
 
   const idToItem = useMemo(() => new Map(HUNT_ITEMS.map((i) => [i.id, i])), []);
+  const maxTotal = useMemo(() => HUNT_ITEMS.reduce((sum, i) => sum + i.difficulty, 0), []);
 
   const entries: PointsEntry[] = useMemo(() => {
     const multiplier = 1; // TODO: replace with location-based multiplier per item
@@ -52,8 +54,23 @@ export default function PointsScreen() {
 
   const total = useMemo(() => entries.reduce((sum, e) => sum + e.points, 0), [entries]);
 
+  const progress = maxTotal > 0 ? Math.max(0, Math.min(1, total / maxTotal)) : 0;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.chartContainer}>
+        <ProgressDonut 
+          size={180}
+          strokeWidth={14}
+          progress={progress}
+          trackColor={colors.border}
+          fillStart="#F59E0B"
+          fillEnd={Colors[colorScheme ?? 'light'].tint}
+          label={`${Math.round(progress * 100)}%`}
+          sublabel={`${total} / ${maxTotal} pts`}
+          textColor={colors.text}
+        />
+      </View>
       {entries.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={[styles.emptyText, { color: colors.text }]}>No points yet</Text>
@@ -84,9 +101,76 @@ export default function PointsScreen() {
   );
 }
 
+function ProgressDonut({
+  size,
+  strokeWidth,
+  progress,
+  trackColor,
+  fillStart,
+  fillEnd,
+  label,
+  sublabel,
+  textColor,
+}: {
+  size: number;
+  strokeWidth: number;
+  progress: number; // 0..1
+  trackColor: string;
+  fillStart: string;
+  fillEnd: string;
+  label: string;
+  sublabel?: string;
+  textColor: string;
+}) {
+  const half = size / 2;
+  const radius = half - strokeWidth / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dash = circumference * progress;
+  const gap = circumference - dash;
+  return (
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={size} height={size}>
+        <Defs>
+          <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0%" stopColor={fillStart} />
+            <Stop offset="100%" stopColor={fillEnd} />
+          </LinearGradient>
+        </Defs>
+        <Circle
+          cx={half}
+          cy={half}
+          r={radius}
+          stroke={trackColor}
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        <Circle
+          cx={half}
+          cy={half}
+          r={radius}
+          stroke="url(#grad)"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={`${dash}, ${gap}`}
+          rotation={-90}
+          origin={`${half}, ${half}`}
+          fill="none"
+        />
+      </Svg>
+      <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ color: textColor, fontSize: 20, fontWeight: '800' }}>{label}</Text>
+        {sublabel ? (
+          <Text style={{ color: textColor, opacity: 0.7, marginTop: 2, fontWeight: '600' }}>{sublabel}</Text>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
   list: { padding: 16, paddingBottom: 32 },
+  chartContainer: { alignItems: 'center', justifyContent: 'center', paddingTop: 16, paddingBottom: 8 },
   card: {
     borderWidth: 1,
     borderRadius: 12,

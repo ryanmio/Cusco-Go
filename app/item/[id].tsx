@@ -131,30 +131,18 @@ export default function ItemDetailScreen() {
   async function onCapture() {
     if (!item) return;
     
-    // Request permissions and pre-warm location
-    await ImagePicker.requestCameraPermissionsAsync();
-    await ImagePicker.requestMediaLibraryPermissionsAsync();
-    await ensureWhenInUsePermission();
-
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Cancel', 'Take Photo', 'Choose from Library'],
-        cancelButtonIndex: 0,
-      },
-      async (index) => {
-        try {
-          if (index === 1) {
-            const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!cam.canceled) await handlePicked(cam.assets[0].uri, item.id, item.title, cam.assets[0].exif ?? null);
-          } else if (index === 2) {
-            const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!lib.canceled) await handlePicked(lib.assets[0].uri, item.id, item.title, lib.assets[0].exif ?? null);
-          }
-        } catch (e: any) {
-          Alert.alert('Capture failed', String(e?.message ?? e));
-        }
+    try {
+      // Request camera permission and pre-warm location
+      await ImagePicker.requestCameraPermissionsAsync();
+      await ensureWhenInUsePermission();
+      
+      const result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
+      if (!result.canceled) {
+        await handlePicked(result.assets[0].uri, item.id, item.title, result.assets[0].exif ?? null);
       }
-    );
+    } catch (e: any) {
+      Alert.alert('Capture failed', String(e?.message ?? e));
+    }
   }
 
   async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {

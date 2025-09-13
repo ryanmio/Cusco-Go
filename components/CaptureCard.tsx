@@ -8,21 +8,23 @@ export function CaptureCard({ id, title, placeholder, onPress }: { id: string; t
   const thumbSource = latest ? { uri: latest.thumbnailUri } : placeholder;
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  
+
   return (
-    <Pressable style={[styles.card, { backgroundColor: colors.cardBackground }]} onPress={onPress}>
-      <Image source={thumbSource} style={styles.image} resizeMode="cover" />
-      <View style={[styles.caption, { backgroundColor: colors.overlayBackground }]}>
-        <Text style={[styles.captionText, { color: colors.overlayText }]}>{title}</Text>
+    <Pressable style={styles.card} onPress={onPress}>
+      <View style={[styles.imageWrap, { backgroundColor: colors.cardBackground }]}>
+        <Image source={thumbSource} style={styles.image} resizeMode="cover" />
       </View>
+      <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
+        {title}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { flex: 1, aspectRatio: 1, margin: 8, borderRadius: 12, overflow: 'hidden' },
-  image: { flex: 1, width: '100%', height: '100%' },
-  caption: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: 6 },
-  captionText: { fontWeight: '600' },
+  card: { flex: 1, margin: 8 },
+  imageWrap: { width: '100%', aspectRatio: 1, borderRadius: 12, overflow: 'hidden' },
+  image: { width: '100%', height: '100%' },
+  title: { marginTop: 6, fontWeight: '600', fontSize: 14, textAlign: 'center' },
 });
 

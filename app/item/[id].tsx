@@ -91,14 +91,14 @@ export default function ItemDetailScreen() {
             const exifGps = extractGpsFromExif(result.assets[0].exif ?? null);
             const loc = exifGps ?? (await getSingleLocationOrNull());
             const stamp = Date.now();
-            const saved = await saveOriginalAndSquareThumbnail(result.assets[0].uri, `${item.id}_${stamp}`);
+            const saved = await saveOriginalAndSquareThumbnail(result.assets[0].uri, `${item?.id}_${stamp}`);
             
             // Update database
             deleteCapture(latestCapture.id);
             const { insertCapture } = await import('@/lib/db');
             insertCapture({
-              itemId: item.id,
-              title: item.title,
+              itemId: item?.id || '',
+              title: item?.title || '',
               originalUri: saved.originalUri,
               thumbnailUri: saved.thumbnailUri,
               createdAt: stamp,
@@ -106,7 +106,7 @@ export default function ItemDetailScreen() {
               longitude: loc?.longitude ?? null,
             });
             
-            router.replace(`/item/${item.id}`);
+            router.replace(`/item/${item?.id}`);
           }
         } catch (e: any) {
           Alert.alert('Replace failed', String(e?.message ?? e));
@@ -128,8 +128,66 @@ export default function ItemDetailScreen() {
     }
   }
 
-  function onCapture() {
-    router.push(`/(tabs)/?capture=${id}`);
+  async function onCapture() {
+    if (!item) return;
+    
+    // Request permissions and pre-warm location
+    await ImagePicker.requestCameraPermissionsAsync();
+    await ImagePicker.requestMediaLibraryPermissionsAsync();
+    await ensureWhenInUsePermission();
+
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Take Photo', 'Choose from Library'],
+        cancelButtonIndex: 0,
+      },
+      async (index) => {
+        try {
+          if (index === 1) {
+            const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
+            if (!cam.canceled) await handlePicked(cam.assets[0].uri, item.id, item.title, cam.assets[0].exif ?? null);
+          } else if (index === 2) {
+            const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
+            if (!lib.canceled) await handlePicked(lib.assets[0].uri, item.id, item.title, lib.assets[0].exif ?? null);
+          }
+        } catch (e: any) {
+          Alert.alert('Capture failed', String(e?.message ?? e));
+        }
+      }
+    );
+  }
+
+  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
+    const stamp = Date.now();
+    // Start EXIF parse immediately
+    const exifGps = extractGpsFromExif(pickedExif);
+    // Save files first for snappier UI, then fetch GPS if needed
+    const saved = await saveOriginalAndSquareThumbnail(uri, `${itemId}_${stamp}`);
+    
+    // Insert row with whatever location we have synchronously (EXIF or null)
+    const { insertCapture } = await import('@/lib/db');
+    const id = insertCapture({
+      itemId,
+      title,
+      originalUri: saved.originalUri,
+      thumbnailUri: saved.thumbnailUri,
+      createdAt: stamp,
+      latitude: exifGps?.latitude ?? null,
+      longitude: exifGps?.longitude ?? null,
+    });
+    
+    // Navigate to the item's page to show the new capture
+    router.replace(`/item/${itemId}`);
+    
+    // If no EXIF GPS, resolve a fresh fix in the background and update row
+    if (!exifGps) {
+      getSingleLocationOrNull().then((loc) => {
+        if (loc) {
+          const { updateCaptureLocation } = require('@/lib/db');
+          updateCaptureLocation(id, loc.latitude, loc.longitude);
+        }
+      });
+    }
   }
 
   return (

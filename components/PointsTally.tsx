@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { addCapturesListener, listDistinctCapturedItemIds } from '@/lib/db';
@@ -32,11 +33,13 @@ export function PointsTally() {
   }, [capturedIds]);
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.text, { color: colors.text }]} accessibilityLabel="Total points">
-        {totalPoints}
-      </Text>
-    </View>
+    <Pressable onPress={() => router.push('/points')} accessibilityRole="button" accessibilityLabel="View points breakdown">
+      <View style={styles.container}>
+        <Text style={[styles.text, { color: colors.text }]} accessibilityLabel="Total points">
+          {totalPoints}
+        </Text>
+      </View>
+    </Pressable>
   );
 }
 

@@ -188,6 +188,11 @@ export default function HuntGridScreen() {
       <Animated.View
         onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
         style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10,
           transform: [{ translateY: headerTranslateY }],
           backgroundColor: colors.background,
         }}

@@ -1,7 +1,6 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import { Alert, Image, StyleSheet, Text, View, ScrollView } from 'react-native';
-import { GestureHandlerRootView, PinchGestureHandler } from 'react-native-gesture-handler';
-import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import { useEffect } from 'react';
@@ -11,20 +10,8 @@ import { FullScreenActions } from '@/components/FullScreenActions';
 
 export default function Viewer() {
   const { uri } = useLocalSearchParams<{ uri: string }>();
-  const scale = useSharedValue(1);
 
   console.log('Viewer URI:', uri);
-
-  const onPinch = useAnimatedGestureHandler({
-    onActive: (e) => {
-      scale.value = e.scale;
-    },
-    onEnd: () => {
-      scale.value = 1;
-    },
-  });
-
-  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   useEffect(() => {
     // Ensure permission prompt happens when saving
@@ -94,16 +81,18 @@ export default function Viewer() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'black' }}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         maximumZoomScale={3}
         minimumZoomScale={1}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
+        bouncesZoom
+        centerContent
       >
-        <Image 
-          source={{ uri: String(uri) }} 
-          style={styles.image} 
+        <Image
+          source={{ uri: String(uri) }}
+          style={styles.image}
           resizeMode="contain"
           onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
           onLoad={() => console.log('Image loaded successfully')}

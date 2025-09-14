@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "dev.cuscogo.app",
-      "buildNumber": "10",
+      "buildNumber": "13",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow camera access to capture scavenger hunt photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow saving captured photos and thumbnails to your Photos library.",
@@ -60,6 +60,12 @@
       "eas": {
         "projectId": "e51973b3-e611-4376-a144-dd08c71c9b14"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e51973b3-e611-4376-a144-dd08c71c9b14"
     }
   }
 }

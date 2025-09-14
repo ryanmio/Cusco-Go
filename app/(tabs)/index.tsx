@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent, Animated } from 'react-native';
+import GlassSurface from '@/components/GlassSurface';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useCelebration } from '@/components/CelebrationProvider';
@@ -213,87 +214,56 @@ export default function HuntGridScreen() {
       {showOverlay && (
         <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: colors.background, zIndex: 10, opacity: overlayOpacity, transform: [{ translateY: overlayTranslate }] }}>
           <View style={styles.searchContainer}>
-            <TextInput
-              style={[
-                styles.searchInput,
-                {
-                  backgroundColor: colors.searchBackground,
-                  color: colors.searchText,
-                  borderColor: colors.border,
-                }
-              ]}
-              placeholder="Search items..."
-              placeholderTextColor={colors.searchPlaceholder}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
+            <GlassSurface style={styles.glassField} glassEffectStyle="regular" isInteractive>
+              <TextInput
+                style={[
+                  styles.searchInput,
+                  {
+                    backgroundColor: 'transparent',
+                    color: colors.searchText,
+                    borderColor: 'transparent',
+                  }
+                ]}
+                placeholder="Search items..."
+                placeholderTextColor={colors.searchPlaceholder}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </GlassSurface>
           </View>
           {!isSearching && (
-            <View style={[styles.filterContainer]}
-            >
+            <View style={[styles.filterContainer]}>
               <TouchableOpacity
                 onPress={() => setCategoryFilter('all')}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: categoryFilter === 'all' ? colors.tint : colors.border,
-                  backgroundColor: categoryFilter === 'all' ? colors.tint : colors.searchBackground,
-                }}
+                style={{ borderRadius: 16 }}
               >
-                <Text style={{
-                  fontWeight: '600',
-                  color: categoryFilter === 'all' ? '#fff' : colors.searchText,
-                }}>All</Text>
+                <GlassSurface style={styles.glassChip} glassEffectStyle="clear" isInteractive tintColor={categoryFilter === 'all' ? colors.tint : undefined}>
+                  <Text style={{ fontWeight: '600', color: colors.searchText }}>All</Text>
+                </GlassSurface>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setCategoryFilter('animal')}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: categoryFilter === 'animal' ? colors.tint : colors.border,
-                  backgroundColor: categoryFilter === 'animal' ? colors.tint : colors.searchBackground,
-                }}
+                style={{ borderRadius: 16 }}
               >
-                <Text style={{
-                  fontWeight: '600',
-                  color: categoryFilter === 'animal' ? '#fff' : colors.searchText,
-                }}>Animals</Text>
+                <GlassSurface style={styles.glassChip} glassEffectStyle="clear" isInteractive tintColor={categoryFilter === 'animal' ? colors.tint : undefined}>
+                  <Text style={{ fontWeight: '600', color: colors.searchText }}>Animals</Text>
+                </GlassSurface>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setCategoryFilter('plant')}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: categoryFilter === 'plant' ? colors.tint : colors.border,
-                  backgroundColor: categoryFilter === 'plant' ? colors.tint : colors.searchBackground,
-                }}
+                style={{ borderRadius: 16 }}
               >
-                <Text style={{
-                  fontWeight: '600',
-                  color: categoryFilter === 'plant' ? '#fff' : colors.searchText,
-                }}>Plants</Text>
+                <GlassSurface style={styles.glassChip} glassEffectStyle="clear" isInteractive tintColor={categoryFilter === 'plant' ? colors.tint : undefined}>
+                  <Text style={{ fontWeight: '600', color: colors.searchText }}>Plants</Text>
+                </GlassSurface>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setCategoryFilter('ruins')}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: categoryFilter === 'ruins' ? colors.tint : colors.border,
-                  backgroundColor: categoryFilter === 'ruins' ? colors.tint : colors.searchBackground,
-                }}
+                style={{ borderRadius: 16 }}
               >
-                <Text style={{
-                  fontWeight: '600',
-                  color: categoryFilter === 'ruins' ? '#fff' : colors.searchText,
-                }}>Ruins</Text>
+                <GlassSurface style={styles.glassChip} glassEffectStyle="clear" isInteractive tintColor={categoryFilter === 'ruins' ? colors.tint : undefined}>
+                  <Text style={{ fontWeight: '600', color: colors.searchText }}>Ruins</Text>
+                </GlassSurface>
               </TouchableOpacity>
             </View>
           )}
@@ -305,20 +275,22 @@ export default function HuntGridScreen() {
         ListHeaderComponent={
           <>
             <View style={styles.searchContainer}>
-              <TextInput
-                style={[
-                  styles.searchInput,
-                  {
-                    backgroundColor: colors.searchBackground,
-                    color: colors.searchText,
-                    borderColor: colors.border,
-                  }
-                ]}
-                placeholder="Search items..."
-                placeholderTextColor={colors.searchPlaceholder}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
+              <GlassSurface style={styles.glassField} glassEffectStyle="regular" isInteractive>
+                <TextInput
+                  style={[
+                    styles.searchInput,
+                    {
+                      backgroundColor: 'transparent',
+                      color: colors.searchText,
+                      borderColor: 'transparent',
+                    }
+                  ]}
+                  placeholder="Search items..."
+                  placeholderTextColor={colors.searchPlaceholder}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+              </GlassSurface>
             </View>
             {!isSearching && (
               <View style={[styles.filterContainer]}
@@ -411,6 +383,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
   },
+  glassField: { borderRadius: 12, overflow: 'hidden' },
   filterContainer: {
     paddingHorizontal: 16,
     paddingBottom: 8,
@@ -418,6 +391,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
   },
+  glassChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16 },
   list: { padding: 8 },
   processingOverlay: {
     position: 'absolute',

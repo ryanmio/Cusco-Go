@@ -1,6 +1,8 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs, router } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
+import { Stack } from 'expo-router';
 import { Pressable } from 'react-native';
 import PointsTally from '@/components/PointsTally';
 
@@ -20,55 +22,19 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-        headerLeft: () => (
-          <Pressable
-            onPress={() => router.push('/how-to-play')}
-            style={{ paddingHorizontal: 10, opacity: 0.7 }}
-            hitSlop={8}
-            accessibilityLabel="How to Play"
-            accessibilityRole="button"
-          >
-            <FontAwesome
-              name="question-circle"
-              size={18}
-              color={Colors[colorScheme ?? 'light'].tabIconDefault}
-            />
-          </Pressable>
-        ),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Hunt',
-          headerTitle: 'Hunt',
-          headerRight: () => <PointsTally />,
-          tabBarIcon: ({ color }) => <TabBarIcon name="image" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="gallery"
-        options={{
-          title: 'Gallery',
-          headerTitle: 'Gallery',
-          headerRight: () => <PointsTally />,
-          tabBarIcon: ({ color }) => <TabBarIcon name="th" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: 'Map',
-          headerTitle: 'Map',
-          headerRight: () => <PointsTally />,
-          tabBarIcon: ({ color }) => <TabBarIcon name="map" color={color} />,
-        }}
-      />
-    </Tabs>
+    <NativeTabs>
+      <NativeTabs.Trigger name="index">
+        <Icon sf={{ default: 'rectangle.stack', selected: 'rectangle.stack.fill' }} />
+        <Label>Hunt</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="gallery">
+        <Icon sf={{ default: 'square.grid.2x2', selected: 'square.grid.2x2.fill' }} />
+        <Label>Gallery</Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="map">
+        <Icon sf={{ default: 'map', selected: 'map.fill' }} />
+        <Label>Map</Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

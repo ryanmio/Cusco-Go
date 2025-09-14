@@ -1,6 +1,6 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View, ActionSheetIOS, Alert } from 'react-native';
-import { useEffect } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View, ActionSheetIOS, Alert, findNodeHandle } from 'react-native';
+import { useEffect, useRef } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { HUNT_ITEMS } from '@/data/items';
@@ -59,6 +59,7 @@ export default function ItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const item = HUNT_ITEMS.find(i => i.id === id);
   const latestCapture = id ? getLatestCaptureForItem(id) : null;
+  const menuButtonRef = useRef<View>(null);
 
   if (!item) {
     return (
@@ -79,6 +80,8 @@ export default function ItemDetailScreen() {
         options: ['Cancel', 'Delete Capture', 'Replace Photo', 'Save to Photos'],
         cancelButtonIndex: 0,
         destructiveButtonIndex: 1,
+        // Anchor to the menu button (especially important on iPad)
+        anchor: findNodeHandle(menuButtonRef.current) ?? undefined,
       },
       async (index) => {
         if (index === 1) {
@@ -117,6 +120,7 @@ export default function ItemDetailScreen() {
       {
         options: ['Cancel', 'Take Photo', 'Choose from Library'],
         cancelButtonIndex: 0,
+        anchor: findNodeHandle(menuButtonRef.current) ?? undefined,
       },
       async (index) => {
         try {
@@ -242,7 +246,7 @@ export default function ItemDetailScreen() {
             <Pressable style={styles.viewButton} onPress={onViewPhoto}>
               <Text style={styles.viewButtonText}>View Full Size</Text>
             </Pressable>
-            <Pressable style={styles.menuButton} onPress={onMenuPress}>
+            <Pressable ref={menuButtonRef} style={styles.menuButton} onPress={onMenuPress}>
               <Text style={styles.menuButtonText}>⋯</Text>
             </Pressable>
           </>

@@ -57,6 +57,7 @@ function RootLayoutNav() {
           <Stack.Screen name="viewer" options={{ title: 'Viewer' }} />
           <Stack.Screen name="item/[id]" options={{ title: 'Item Details', headerBackTitle: 'Back' }} />
           <Stack.Screen name="points" options={{ title: 'Points', headerBackTitle: 'Back' }} />
+          <Stack.Screen name="how-to-play" options={{ title: 'How to Play', headerBackTitle: 'Back' }} />
         </Stack>
       </CelebrationProvider>
     </ThemeProvider>

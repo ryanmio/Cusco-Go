@@ -60,8 +60,8 @@ export default function PointsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.chartContainer}>
         <ProgressDonut 
-          size={180}
-          strokeWidth={14}
+          size={126}
+          strokeWidth={10}
           progress={progress}
           trackColor={colors.border}
           fillStart="#F59E0B"
@@ -85,7 +85,7 @@ export default function PointsScreen() {
             <View style={[styles.card, { borderColor: colors.border }]}>
               <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
               <Text style={[styles.formula, { color: colors.text }]}>
-                {item.multiplier} x {item.difficulty} = {item.points}
+                {item.multiplier} x {item.difficulty} = {item.points} pts
               </Text>
             </View>
           )}

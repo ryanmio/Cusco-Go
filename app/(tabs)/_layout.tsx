@@ -1,6 +1,6 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
+import { Link, Tabs, router } from 'expo-router';
 import { Pressable } from 'react-native';
 import PointsTally from '@/components/PointsTally';
 
@@ -26,6 +26,21 @@ export default function TabLayout() {
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        headerLeft: () => (
+          <Pressable
+            onPress={() => router.push('/how-to-play')}
+            style={{ paddingHorizontal: 10, opacity: 0.7 }}
+            hitSlop={8}
+            accessibilityLabel="How to Play"
+            accessibilityRole="button"
+          >
+            <FontAwesome
+              name="question-circle"
+              size={18}
+              color={Colors[colorScheme ?? 'light'].tabIconDefault}
+            />
+          </Pressable>
+        ),
       }}>
       <Tabs.Screen
         name="index"

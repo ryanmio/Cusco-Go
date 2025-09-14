@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent, Animated } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GlassSurface from '@/components/GlassSurface';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -14,6 +15,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export default function HuntGridScreen() {
+  const insets = useSafeAreaInsets();
   const { celebrate } = useCelebration();
   const [version, setVersion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -368,6 +370,7 @@ export default function HuntGridScreen() {
         keyExtractor={(i) => i.id + ':' + version}
         numColumns={2}
         renderItem={renderCard}
+        ListFooterComponent={<View style={{ height: Math.max(48, insets.bottom + 48) }} />}
       />
     </View>
   );

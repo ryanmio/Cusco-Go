@@ -10,6 +10,14 @@
         "buildConfiguration": "Debug"
       }
     },
+    "dev": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": false,
+        "buildConfiguration": "Debug"
+      }
+    },
     "preview": {
       "ios": {
         "image": "latest"

@@ -1,4 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import GlassSurface from '@/components/GlassSurface';
 import { getLatestCaptureForItem } from '@/lib/db';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -11,9 +12,9 @@ export function CaptureCard({ id, title, placeholder, onPress }: { id: string; t
 
   return (
     <Pressable style={styles.card} onPress={onPress}>
-      <View style={[styles.imageWrap, { backgroundColor: colors.cardBackground }]}>
+      <GlassSurface style={styles.imageWrap} glassEffectStyle="regular" isInteractive>
         <Image source={thumbSource} style={styles.image} resizeMode="cover" />
-      </View>
+      </GlassSurface>
       <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
         {title}
       </Text>

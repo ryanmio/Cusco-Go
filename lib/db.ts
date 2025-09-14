@@ -6,7 +6,8 @@ export type CaptureRow = {
   title: string; // item title denormalized for convenience
   originalUri: string; // file:// uri to original image
   thumbnailUri: string; // file:// uri to 1:1 ~1024px jpeg
-  createdAt: number; // epoch ms
+  createdAt: number; // epoch ms - when added to app
+  photoTakenAt: number; // epoch ms - when photo was originally taken (from EXIF)
   latitude?: number | null;
   longitude?: number | null;
 };
@@ -47,10 +48,20 @@ function initialize(database: SQLite.SQLiteDatabase) {
       originalUri TEXT NOT NULL,
       thumbnailUri TEXT NOT NULL,
       createdAt INTEGER NOT NULL,
+      photoTakenAt INTEGER NOT NULL,
       latitude REAL,
       longitude REAL
     );`
   );
+
+  // Migration: Add photoTakenAt column if it doesn't exist
+  try {
+    database.execSync(`ALTER TABLE captures ADD COLUMN photoTakenAt INTEGER;`);
+    // For existing records, set photoTakenAt to createdAt (fallback)
+    database.execSync(`UPDATE captures SET photoTakenAt = createdAt WHERE photoTakenAt IS NULL;`);
+  } catch (e) {
+    // Column already exists, ignore error
+  }
 
   database.execSync(
     `CREATE INDEX IF NOT EXISTS idx_captures_item ON captures(itemId);`
@@ -58,19 +69,23 @@ function initialize(database: SQLite.SQLiteDatabase) {
   database.execSync(
     `CREATE INDEX IF NOT EXISTS idx_captures_createdAt ON captures(createdAt);`
   );
+  database.execSync(
+    `CREATE INDEX IF NOT EXISTS idx_captures_photoTakenAt ON captures(photoTakenAt);`
+  );
 }
 
 export function insertCapture(row: Omit<CaptureRow, 'id'>): number {
   const database = getDb();
   const result = database.runSync(
-    `INSERT INTO captures (itemId, title, originalUri, thumbnailUri, createdAt, latitude, longitude)
-     VALUES (?, ?, ?, ?, ?, ?, ?);`,
+    `INSERT INTO captures (itemId, title, originalUri, thumbnailUri, createdAt, photoTakenAt, latitude, longitude)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
     [
       row.itemId,
       row.title,
       row.originalUri,
       row.thumbnailUri,
       row.createdAt,
+      row.photoTakenAt,
       row.latitude ?? null,
       row.longitude ?? null,
     ]

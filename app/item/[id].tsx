@@ -10,6 +10,51 @@ import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { removeFileIfExists } from '@/lib/files';
 
+// Extract photo taken date from EXIF data
+function extractPhotoDateFromExif(exif: any | null): number | null {
+  if (!exif) return null;
+
+  const dateFields = ['DateTimeOriginal', 'DateTime', 'DateTimeDigitized'];
+  let dateStr: string | undefined;
+  for (const field of dateFields) {
+    const candidate = exif[field];
+    if (typeof candidate === 'string' && candidate.length >= 19) {
+      dateStr = candidate;
+      break;
+    }
+  }
+
+  const offset: string | undefined = exif.OffsetTimeOriginal || exif.OffsetTimeDigitized || exif.OffsetTime;
+  const subsec: string | undefined = exif.SubsecTimeOriginal || exif.SubsecTimeDigitized || exif.SubSecTime;
+
+  if (dateStr) {
+    // Convert only date part colons to dashes
+    const base = dateStr
+      .replace(' ', 'T')
+      .replace(/^([0-9]{4}):([0-9]{2}):([0-9]{2})/, '$1-$2-$3');
+    const frac = subsec ? `.${String(subsec).padStart(3, '0').slice(0, 3)}` : '';
+    const tz = typeof offset === 'string' && /^([+\-]\d{2}:\d{2})$/.test(offset) ? offset : 'Z';
+    const iso = `${base}${frac}${tz}`;
+    const parsed = Date.parse(iso);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  const gpsDate: string | undefined = exif.GPSDateStamp;
+  const gpsTime: string | undefined = exif.GPSTimeStamp;
+  if (gpsDate && gpsTime) {
+    const base = `${gpsDate.replace(/:/g, '-')}`;
+    const iso = `${base}T${gpsTime}Z`;
+    const parsed = Date.parse(iso);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
 export default function ItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const item = HUNT_ITEMS.find(i => i.id === id);
@@ -93,6 +138,9 @@ export default function ItemDetailScreen() {
             const stamp = Date.now();
             const saved = await saveOriginalAndSquareThumbnail(result.assets[0].uri, `${item?.id}_${stamp}`);
             
+            // Extract photo date from EXIF
+            const photoTakenAt = extractPhotoDateFromExif(result.assets[0].exif ?? null) || stamp;
+            
             // Update database
             deleteCapture(latestCapture.id);
             const { insertCapture } = await import('@/lib/db');
@@ -102,6 +150,7 @@ export default function ItemDetailScreen() {
               originalUri: saved.originalUri,
               thumbnailUri: saved.thumbnailUri,
               createdAt: stamp,
+              photoTakenAt: photoTakenAt,
               latitude: loc?.latitude ?? null,
               longitude: loc?.longitude ?? null,
             });
@@ -149,6 +198,7 @@ export default function ItemDetailScreen() {
     const stamp = Date.now();
     // Start EXIF parse immediately
     const exifGps = extractGpsFromExif(pickedExif);
+    const photoTakenAt = extractPhotoDateFromExif(pickedExif) || stamp; // Use EXIF date or fallback to current time
     // Save files first for snappier UI, then fetch GPS if needed
     const saved = await saveOriginalAndSquareThumbnail(uri, `${itemId}_${stamp}`);
     
@@ -160,6 +210,7 @@ export default function ItemDetailScreen() {
       originalUri: saved.originalUri,
       thumbnailUri: saved.thumbnailUri,
       createdAt: stamp,
+      photoTakenAt: photoTakenAt,
       latitude: exifGps?.latitude ?? null,
       longitude: exifGps?.longitude ?? null,
     });

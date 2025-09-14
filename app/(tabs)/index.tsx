@@ -10,6 +10,55 @@ import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { addCapturesListener, getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
+
+// Extract photo taken date from EXIF data
+function extractPhotoDateFromExif(exif: any | null): number | null {
+  if (!exif) return null;
+
+  // Try different EXIF date fields in order of preference
+  const dateFields = ['DateTimeOriginal', 'DateTime', 'DateTimeDigitized'];
+  let dateStr: string | undefined;
+  for (const field of dateFields) {
+    const candidate = exif[field];
+    if (typeof candidate === 'string' && candidate.length >= 19) {
+      dateStr = candidate;
+      break;
+    }
+  }
+
+  // Include timezone offset if provided (e.g., "-04:00") and subseconds
+  const offset: string | undefined = exif.OffsetTimeOriginal || exif.OffsetTimeDigitized || exif.OffsetTime;
+  const subsec: string | undefined = exif.SubsecTimeOriginal || exif.SubsecTimeDigitized || exif.SubSecTime;
+
+  if (dateStr) {
+    // EXIF dates are typically "YYYY:MM:DD HH:MM:SS"
+    // Convert only the date part's colons, leave time colons intact
+    const base = dateStr
+      .replace(' ', 'T')
+      .replace(/^([0-9]{4}):([0-9]{2}):([0-9]{2})/, '$1-$2-$3');
+    const frac = subsec ? `.${String(subsec).padStart(3, '0').slice(0, 3)}` : '';
+    const tz = typeof offset === 'string' && /^([+\-]\d{2}:\d{2})$/.test(offset) ? offset : 'Z';
+    const iso = `${base}${frac}${tz}`;
+    const parsed = Date.parse(iso);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  // GPS fallback (UTC per EXIF spec)
+  const gpsDate: string | undefined = exif.GPSDateStamp;
+  const gpsTime: string | undefined = exif.GPSTimeStamp;
+  if (gpsDate && gpsTime) {
+    const base = `${gpsDate.replace(/:/g, '-')}`;
+    const iso = `${base}T${gpsTime}Z`;
+    const parsed = Date.parse(iso);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
 import { CaptureCard } from '@/components/CaptureCard';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -139,6 +188,7 @@ export default function HuntGridScreen() {
     const stamp = Date.now();
     // Start EXIF parse immediately
     const exifGps = extractGpsFromExif(pickedExif);
+    const photoTakenAt = extractPhotoDateFromExif(pickedExif) || stamp; // Use EXIF date or fallback to current time
     // Save files first for snappier UI, then fetch GPS if needed
     const saved = await saveOriginalAndSquareThumbnail(uri, `${itemId}_${stamp}`);
     setOptimisticThumbUri(saved.thumbnailUri);
@@ -149,6 +199,7 @@ export default function HuntGridScreen() {
       originalUri: saved.originalUri,
       thumbnailUri: saved.thumbnailUri,
       createdAt: stamp,
+      photoTakenAt: photoTakenAt,
       latitude: exifGps?.latitude ?? null,
       longitude: exifGps?.longitude ?? null,
     });

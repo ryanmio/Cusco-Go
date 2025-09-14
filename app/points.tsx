@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Animated, FlatList, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -19,6 +19,7 @@ export default function PointsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const [capturedIds, setCapturedIds] = useState<string[]>([]);
+  const scrollY = React.useRef(new Animated.Value(0)).current;
 
   function refresh() {
     const ids = listDistinctCapturedItemIds();
@@ -56,6 +57,8 @@ export default function PointsScreen() {
   const total = useMemo(() => entries.reduce((sum, e) => sum + e.points, 0), [entries]);
 
   const progress = maxTotal > 0 ? Math.max(0, Math.min(1, total / maxTotal)) : 0;
+  const scale = scrollY.interpolate({ inputRange: [0, 150], outputRange: [1, 0.55], extrapolate: 'clamp' });
+  const cardHeight = scrollY.interpolate({ inputRange: [0, 150], outputRange: [170, 80], extrapolate: 'clamp' });
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -65,7 +68,11 @@ export default function PointsScreen() {
           <Text style={[styles.emptySubText, { color: colors.text }]}>Capture items to earn points.</Text>
         </View>
       ) : (
-        <FlatList
+        <Animated.FlatList
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: false }
+          )}
           contentContainerStyle={[styles.list, { paddingTop: 210 }]}
           data={entries}
           keyExtractor={(e) => e.itemId}
@@ -85,7 +92,7 @@ export default function PointsScreen() {
           }
         />
       )}
-      <View style={styles.overlay} pointerEvents="none">
+      <Animated.View style={[styles.glassWrapper, { height: cardHeight }]} pointerEvents="none">
         <GlassSurface
           style={[
             styles.glassCard,
@@ -98,19 +105,21 @@ export default function PointsScreen() {
           isInteractive
           fallbackStyle={{ backgroundColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.28)' }}
         >
-          <ProgressDonut 
-            size={126}
-            strokeWidth={10}
-            progress={progress}
-            trackColor={colors.border}
-            fillStart="#F59E0B"
-            fillEnd={Colors[colorScheme ?? 'light'].tint}
-            label={`${Math.round(progress * 100)}%`}
-            sublabel={`${total} / ${maxTotal} pts`}
-            textColor={colors.text}
-          />
+          <Animated.View style={{ transform: [{ scale }] }}>
+            <ProgressDonut 
+              size={126}
+              strokeWidth={10}
+              progress={progress}
+              trackColor={colors.border}
+              fillStart="#F59E0B"
+              fillEnd={Colors[colorScheme ?? 'light'].tint}
+              label={`${Math.round(progress * 100)}%`}
+              sublabel={`${total} / ${maxTotal} pts`}
+              textColor={colors.text}
+            />
+          </Animated.View>
         </GlassSurface>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -125,6 +134,7 @@ function ProgressDonut({
   label,
   sublabel,
   textColor,
+  textOpacity,
 }: {
   size: number;
   strokeWidth: number;
@@ -135,6 +145,7 @@ function ProgressDonut({
   label: string;
   sublabel?: string;
   textColor: string;
+  textOpacity?: any;
 }) {
   const half = size / 2;
   const radius = half - strokeWidth / 2;
@@ -192,11 +203,19 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
+  glassWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
   glassCard: {
     position: 'absolute',
     top: 8,
     left: 16,
     right: 16,
+    bottom: 0,
     paddingVertical: 14,
     paddingHorizontal: 14,
     borderRadius: 12,

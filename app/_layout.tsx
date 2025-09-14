@@ -100,7 +100,10 @@ function RootLayoutNav() {
             name="viewer"
             options={{
               title: 'Viewer',
-              headerShown: false,
+              headerBackTitle: 'Back',
+              headerStyle: { backgroundColor: 'black' },
+              headerTintColor: 'white',
+              headerTitleStyle: { color: 'white' },
               presentation: 'card',
               contentStyle: { backgroundColor: 'black' },
             }}

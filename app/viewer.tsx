@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { removeFileIfExists } from '@/lib/files';
 import { deleteCapture } from '@/lib/db';
 import { FullScreenActions } from '@/components/FullScreenActions';
+ 
 
 export default function Viewer() {
   const { uri } = useLocalSearchParams<{ uri: string }>();

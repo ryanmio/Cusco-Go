@@ -54,6 +54,40 @@ import GlassSurface from '@/components/GlassSurface';
 </GlassSurface>
 ```
 
+### Points screen Liquid Glass (pie chart)
+
+The points screen (`app/points.tsx`) renders the pie chart inside a native Liquid Glass card using `GlassSurface`:
+
+- The glass card is absolutely positioned at the top so the list scrolls underneath it (overlay effect).
+- Uses `glassEffectStyle="regular"` with no tint for a true frosted look on iOS.
+- Non-interactive overlay via `pointerEvents="none"` so scroll gestures reach the list.
+- The card has radius 12, a subtle semi-transparent white border, and a soft drop shadow to establish hierarchy.
+- On unsupported platforms or when Liquid Glass isn’t available, the wrapper falls back to a translucent view.
+
+Adjust the card’s padding, border, or shadow directly on the `GlassSurface` style in `app/points.tsx`.
+
+### Implementing glass cards elsewhere
+
+1) Wrap your content with `GlassSurface`.
+2) Prefer `glassEffectStyle="regular"` and avoid `tintColor` unless you need a specific hue.
+3) Keep the glass as the immediate wrapper (avoid extra parent wrappers that can flatten the backdrop).
+4) Use a light semi-transparent white border for definition and an optional soft shadow for depth.
+5) If overlaying other content, absolutely position and (optionally) set `pointerEvents="none"` so interactions pass through.
+
+Example:
+
+```tsx
+<GlassSurface
+  style={{ borderRadius: 12, padding: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' }}
+  glassEffectStyle="regular"
+  isInteractive
+>
+  {/* your content */}
+  {children}
+  {/* ... */}
+ </GlassSurface>
+```
+
 ## Add a new screen with GlassSurface
 
 1) Create a new file under `app/(tabs)/new-screen.tsx`.

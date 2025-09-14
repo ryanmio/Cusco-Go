@@ -5,6 +5,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { addCapturesListener, listDistinctCapturedItemIds } from '@/lib/db';
 import { HUNT_ITEMS } from '@/data/items';
+import GlassSurface from '@/components/GlassSurface';
 
 type PointsEntry = {
   itemId: string;
@@ -58,19 +59,6 @@ export default function PointsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.chartContainer}>
-        <ProgressDonut 
-          size={126}
-          strokeWidth={10}
-          progress={progress}
-          trackColor={colors.border}
-          fillStart="#F59E0B"
-          fillEnd={Colors[colorScheme ?? 'light'].tint}
-          label={`${Math.round(progress * 100)}%`}
-          sublabel={`${total} / ${maxTotal} pts`}
-          textColor={colors.text}
-        />
-      </View>
       {entries.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={[styles.emptyText, { color: colors.text }]}>No points yet</Text>
@@ -78,7 +66,7 @@ export default function PointsScreen() {
         </View>
       ) : (
         <FlatList
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingTop: 210 }]}
           data={entries}
           keyExtractor={(e) => e.itemId}
           renderItem={({ item }) => (
@@ -97,6 +85,32 @@ export default function PointsScreen() {
           }
         />
       )}
+      <View style={styles.overlay} pointerEvents="none">
+        <GlassSurface
+          style={[
+            styles.glassCard,
+            {
+              borderColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)',
+              borderWidth: 1,
+            },
+          ]}
+          glassEffectStyle="regular"
+          isInteractive
+          fallbackStyle={{ backgroundColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.28)' }}
+        >
+          <ProgressDonut 
+            size={126}
+            strokeWidth={10}
+            progress={progress}
+            trackColor={colors.border}
+            fillStart="#F59E0B"
+            fillEnd={Colors[colorScheme ?? 'light'].tint}
+            label={`${Math.round(progress * 100)}%`}
+            sublabel={`${total} / ${maxTotal} pts`}
+            textColor={colors.text}
+          />
+        </GlassSurface>
+      </View>
     </View>
   );
 }
@@ -169,8 +183,32 @@ function ProgressDonut({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  list: { padding: 16, paddingBottom: 32 },
+  list: { padding: 16, paddingBottom: 64 },
   chartContainer: { alignItems: 'center', justifyContent: 'center', paddingTop: 16, paddingBottom: 8 },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  glassCard: {
+    position: 'absolute',
+    top: 8,
+    left: 16,
+    right: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 12,
+  },
   card: {
     borderWidth: 1,
     borderRadius: 12,

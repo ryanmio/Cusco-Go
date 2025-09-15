@@ -6,6 +6,7 @@ import * as Network from 'expo-network';
 import { addCapturesListener, listCaptures } from '@/lib/db';
 import { getSingleLocationOrNull } from '@/lib/location';
 import { listBiomes, CircleBiome, distanceMeters } from '@/lib/biomes';
+import GlassSurface from '@/components/GlassSurface';
 
 export default function MapTab() {
   const [online, setOnline] = useState<boolean | null>(null);
@@ -207,10 +208,17 @@ export default function MapTab() {
       </View>
       {selectedBiome ? (
         <View style={styles.biomeCardWrap} pointerEvents="box-none" onStartShouldSetResponder={() => true} onResponderRelease={() => setSelectedBiome(null)}>
-          <View style={styles.biomeCard} accessibilityRole="summary">
-            <Text style={styles.biomeTitle}>{selectedBiome.label}</Text>
-            <Text style={styles.biomeSubtitle}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
-          </View>
+          <GlassSurface
+            style={styles.biomeGlass}
+            glassEffectStyle="regular"
+            isInteractive
+            fallbackStyle={{ backgroundColor: 'rgba(255,255,255,0.28)' }}
+          >
+            <View style={styles.biomeContent}>
+              <Text style={styles.biomeTitle}>{selectedBiome.label}</Text>
+              <Text style={styles.biomeSubtitle}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
+            </View>
+          </GlassSurface>
         </View>
       ) : null}
     </View>
@@ -240,19 +248,19 @@ const styles = StyleSheet.create({
     bottom: 112,
     alignItems: 'center',
   },
-  biomeCard: {
-    backgroundColor: 'rgba(0,0,0,0.82)',
+  biomeGlass: {
+    borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
+    borderColor: 'rgba(255,255,255,0.5)',
     shadowColor: '#000',
     shadowOpacity: 0.25,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 8 },
   },
-  biomeTitle: { color: 'white', fontSize: 16, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
-  biomeSubtitle: { color: 'white', fontSize: 13, fontWeight: '700', opacity: 0.9, textAlign: 'center' },
+  biomeContent: { alignItems: 'center' },
+  biomeTitle: { color: '#fff', fontSize: 16, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
+  biomeSubtitle: { color: '#fff', fontSize: 13, fontWeight: '700', opacity: 0.9, textAlign: 'center' },
 });
 

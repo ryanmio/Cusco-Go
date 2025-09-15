@@ -168,6 +168,7 @@ export default function MapTab() {
 
   const textColor = (colorScheme === 'dark') ? '#fff' : '#111';
   const fallbackGlass = (colorScheme === 'dark') ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
+  const glassTint = (colorScheme === 'dark') ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.16)';
 
   return (
     <View style={{ flex: 1 }}>
@@ -220,6 +221,7 @@ export default function MapTab() {
             style={styles.biomeGlass}
             glassEffectStyle="regular"
             isInteractive
+            tintColor={glassTint}
             fallbackStyle={{ backgroundColor: fallbackGlass }}
           >
             <View style={styles.biomeContent}>
@@ -261,12 +263,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 8 },
   },
   biomeContent: { alignItems: 'center' },
   biomeTitle: { fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'center' },

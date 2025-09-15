@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT, Circle } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT, Circle, MapPressEvent } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
 import { addCapturesListener, listCaptures } from '@/lib/db';
 import { getSingleLocationOrNull } from '@/lib/location';
-import { listBiomes, CircleBiome } from '@/lib/biomes';
+import { listBiomes, CircleBiome, distanceMeters } from '@/lib/biomes';
 
 export default function MapTab() {
   const [online, setOnline] = useState<boolean | null>(null);
@@ -127,6 +127,21 @@ export default function MapTab() {
     });
   }, [online, points]);
 
+  function onMapPress(e: MapPressEvent) {
+    const { coordinate } = e.nativeEvent;
+    // Hit-test tap against biome circles
+    const inside = circles
+      .map(b => ({ b, d: distanceMeters(coordinate.latitude, coordinate.longitude, b.centerLat, b.centerLng) }))
+      .filter(x => x.d <= x.b.radiusMeters);
+    if (inside.length > 0) {
+      // Pick highest multiplier; tie-breaker nearest
+      inside.sort((a, b) => (b.b.multiplier - a.b.multiplier) || (a.d - b.d));
+      setSelectedBiome(inside[0].b);
+    } else {
+      setSelectedBiome(null);
+    }
+  }
+
   if (!online) {
     return (
       <View style={styles.center}> 
@@ -161,32 +176,21 @@ export default function MapTab() {
         pitchEnabled={true}
         rotateEnabled={true}
         mapType="standard"
+        onPress={onMapPress}
       >
         {circles.map(b => {
           const strokeColor = goldColor(b.multiplier, 1);
           const fillColor = goldColor(b.multiplier, 0.28);
           return (
-            <React.Fragment key={`biome-${b.id}`}>
-              <Circle
-                center={{ latitude: b.centerLat, longitude: b.centerLng }}
-                radius={b.radiusMeters}
-                strokeWidth={2}
-                strokeColor={strokeColor}
-                fillColor={fillColor}
-                zIndex={2}
-                tappable={true}
-                onPress={() => setSelectedBiome(b)}
-              />
-              <Marker
-                coordinate={{ latitude: b.centerLat, longitude: b.centerLng }}
-                onPress={() => setSelectedBiome(b)}
-                zIndex={3}
-                anchor={{ x: 0.5, y: 0.5 }}
-                tracksViewChanges={false}
-              >
-                <View style={{ width: 1, height: 1, backgroundColor: 'transparent' }} />
-              </Marker>
-            </React.Fragment>
+            <Circle
+              key={`biome-${b.id}`}
+              center={{ latitude: b.centerLat, longitude: b.centerLng }}
+              radius={b.radiusMeters}
+              strokeWidth={2}
+              strokeColor={strokeColor}
+              fillColor={fillColor}
+              zIndex={2}
+            />
           );
         })}
         {points.map(p => (

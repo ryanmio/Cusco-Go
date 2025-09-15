@@ -219,11 +219,12 @@ export default function GalleryScreen() {
                       { 
                         width: tileWidth,
                         height: cell.height,
-                        borderColor: colors.border + '30',
+                        
                       }
                     ]}
                     glassEffectStyle="regular"
                     isInteractive
+                    tintColor={(colorScheme === 'dark') ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.14)'}
                   >
                     <Pressable 
                       style={styles.photoPressable} 
@@ -250,9 +251,10 @@ export default function GalleryScreen() {
     return (
       <View style={[styles.emptyContainer, { backgroundColor: colors.background }]}>
         <GlassSurface
-          style={[styles.emptyCard, { borderColor: colors.border + '30' }]}
+          style={[styles.emptyCard]}
           glassEffectStyle="regular"
           isInteractive
+          tintColor={(colorScheme === 'dark') ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.14)'}
         >
           <Text style={[styles.emptyIcon]}>📸</Text>
           <Text style={[styles.emptyText, { color: colors.text }]}>No photos yet</Text>
@@ -325,13 +327,8 @@ const styles = StyleSheet.create({
   },
   glassPhoto: {
     borderRadius: 16,
-    borderWidth: 1,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    
   },
   photoPressable: {
     flex: 1,
@@ -349,7 +346,6 @@ const styles = StyleSheet.create({
   emptyCard: {
     padding: 48,
     borderRadius: 28,
-    borderWidth: 1,
     alignItems: 'center',
     maxWidth: 280,
   },

@@ -117,15 +117,10 @@ export default function PointsScreen() {
       )}
       <Animated.View style={[styles.glassWrapper, { height: cardHeight }]} pointerEvents="none">
         <GlassSurface
-          style={[
-            styles.glassCard,
-            {
-              borderColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.5)',
-              borderWidth: 1,
-            },
-          ]}
+          style={[styles.glassCard]}
           glassEffectStyle="regular"
           isInteractive
+          tintColor={(colorScheme === 'dark') ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.16)'}
           fallbackStyle={{ backgroundColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.28)' }}
         >
           <Animated.View style={[styles.headerRow, { transform: [{ scale }] }]}> 
@@ -241,11 +236,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 12,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   headerStats: { justifyContent: 'center' },

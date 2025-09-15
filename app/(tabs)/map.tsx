@@ -7,8 +7,13 @@ import { addCapturesListener, listCaptures } from '@/lib/db';
 import { getSingleLocationOrNull } from '@/lib/location';
 import { listBiomes, CircleBiome, distanceMeters } from '@/lib/biomes';
 import GlassSurface from '@/components/GlassSurface';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function MapTab() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+
   const [online, setOnline] = useState<boolean | null>(null);
   const [points, setPoints] = useState<{ id: number; latitude: number; longitude: number; title: string }[]>([]);
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -161,6 +166,9 @@ export default function MapTab() {
     longitudeDelta: 0.5,
   };
 
+  const textColor = (colorScheme === 'dark') ? '#fff' : '#111';
+  const fallbackGlass = (colorScheme === 'dark') ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
+
   return (
     <View style={{ flex: 1 }}>
       <MapView 
@@ -212,11 +220,11 @@ export default function MapTab() {
             style={styles.biomeGlass}
             glassEffectStyle="regular"
             isInteractive
-            fallbackStyle={{ backgroundColor: 'rgba(255,255,255,0.85)' }}
+            fallbackStyle={{ backgroundColor: fallbackGlass }}
           >
             <View style={styles.biomeContent}>
-              <Text style={styles.biomeTitle}>{selectedBiome.label}</Text>
-              <Text style={styles.biomeSubtitle}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
+              <Text style={[styles.biomeTitle, { color: textColor }]}>{selectedBiome.label}</Text>
+              <Text style={[styles.biomeSubtitle, { color: textColor }]}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
             </View>
           </GlassSurface>
         </View>
@@ -250,6 +258,7 @@ const styles = StyleSheet.create({
   },
   biomeGlass: {
     borderRadius: 16,
+    overflow: 'hidden',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
@@ -260,7 +269,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
   },
   biomeContent: { alignItems: 'center' },
-  biomeTitle: { color: '#111', fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
-  biomeSubtitle: { color: '#222', fontSize: 14, fontWeight: '800', opacity: 0.95, textAlign: 'center' },
+  biomeTitle: { fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
+  biomeSubtitle: { fontSize: 14, fontWeight: '800', opacity: 0.95, textAlign: 'center' },
 });
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, Circle } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
@@ -11,6 +11,7 @@ export default function MapTab() {
   const [online, setOnline] = useState<boolean | null>(null);
   const [points, setPoints] = useState<{ id: number; latitude: number; longitude: number; title: string }[]>([]);
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [selectedBiome, setSelectedBiome] = useState<CircleBiome | null>(null);
   const meRef = useRef<{ latitude: number; longitude: number } | null>(null);
   const lastFixAtRef = useRef<number>(0);
   const mapRef = useRef<MapView | null>(null);
@@ -34,8 +35,8 @@ export default function MapTab() {
   useFocusEffect(
     React.useCallback(() => {
       loadPoints();
-      // Refresh GPS fix if we don't have one or it is stale (> 2 minutes)
-      const STALE_MS = 2 * 60 * 1000;
+      // Refresh GPS fix if we don't have one or it is stale (> 5 minutes)
+      const STALE_MS = 5 * 60 * 1000;
       const now = Date.now();
       const shouldRefresh = !lastFixAtRef.current || (now - lastFixAtRef.current) > STALE_MS;
       if (shouldRefresh) {
@@ -156,6 +157,7 @@ export default function MapTab() {
             strokeWidth={2}
             strokeColor="rgba(245,158,11,0.9)"
             fillColor="rgba(245,158,11,0.20)"
+            onPress={() => setSelectedBiome(b)}
           />
         ))}
         {points.map(p => (
@@ -177,6 +179,17 @@ export default function MapTab() {
       <View style={styles.zoomHint}>
         <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
       </View>
+      {selectedBiome ? (
+        <View style={styles.biomeCardWrap} pointerEvents="box-none">
+          <View style={styles.biomeCard} accessibilityRole="summary">
+            <Text style={styles.biomeTitle}>{selectedBiome.label}</Text>
+            <Text style={styles.biomeSubtitle}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
+            <TouchableOpacity onPress={() => setSelectedBiome(null)} style={styles.biomeCloseBtn} accessibilityRole="button" accessibilityLabel="Close biome info">
+              <Text style={styles.biomeCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -197,5 +210,28 @@ const styles = StyleSheet.create({
     borderRadius: 8 
   },
   zoomHintText: { color: 'white', fontSize: 12, textAlign: 'center' },
+  biomeCardWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 24,
+    alignItems: 'center',
+  },
+  biomeCard: {
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  biomeTitle: { color: 'white', fontSize: 16, fontWeight: '800', marginBottom: 4, textAlign: 'center' },
+  biomeSubtitle: { color: 'white', fontSize: 14, fontWeight: '700', opacity: 0.9, textAlign: 'center' },
+  biomeCloseBtn: { marginTop: 10, alignSelf: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' },
+  biomeCloseText: { color: 'white', fontWeight: '800' },
 });
 

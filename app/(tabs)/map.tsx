@@ -20,15 +20,17 @@ export default function MapTab() {
     listBiomes().filter((b: any) => b.type === 'circle') as CircleBiome[]
   ), []);
 
-  // Precompute color scaling for biome multipliers
+  // Biome color scale (dull gold -> bright gold)
   const maxMult = useMemo(() => circles.reduce((m, b) => Math.max(m, b.multiplier), 1), [circles]);
-  function biomeColors(multiplier: number) {
+  function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+  function goldColor(multiplier: number, alpha = 1) {
+    const low = { r: 176, g: 137, b: 0 };   // #B08900 (duller)
+    const high = { r: 255, g: 209, b: 102 }; // #FFD166 (bright)
     const t = Math.max(0, Math.min(1, (multiplier - 1) / Math.max(1e-6, (maxMult - 1))));
-    const strokeA = 0.6 + 0.35 * t; // 0.6..0.95
-    const fillA = 0.12 + 0.18 * t;  // 0.12..0.30
-    const stroke = `rgba(245,158,11,${strokeA.toFixed(2)})`;
-    const fill = `rgba(245,158,11,${fillA.toFixed(2)})`;
-    return { stroke, fill };
+    const r = Math.round(lerp(low.r, high.r, t));
+    const g = Math.round(lerp(low.g, high.g, t));
+    const b = Math.round(lerp(low.b, high.b, t));
+    return `rgba(${r},${g},${b},${alpha})`;
   }
 
   useEffect(() => {
@@ -161,15 +163,18 @@ export default function MapTab() {
         mapType="standard"
       >
         {circles.map(b => {
-          const c = biomeColors(b.multiplier);
+          const strokeColor = goldColor(b.multiplier, 1);
+          const fillColor = goldColor(b.multiplier, 0.28);
           return (
             <Circle
               key={b.id}
               center={{ latitude: b.centerLat, longitude: b.centerLng }}
               radius={b.radiusMeters}
               strokeWidth={2}
-              strokeColor={c.stroke}
-              fillColor={c.fill}
+              strokeColor={strokeColor}
+              fillColor={fillColor}
+              zIndex={2}
+              tappable={true}
               onPress={() => setSelectedBiome(b)}
             />
           );

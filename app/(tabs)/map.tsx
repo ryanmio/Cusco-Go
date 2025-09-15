@@ -166,9 +166,8 @@ export default function MapTab() {
           const strokeColor = goldColor(b.multiplier, 1);
           const fillColor = goldColor(b.multiplier, 0.28);
           return (
-            <>
+            <React.Fragment key={`biome-${b.id}`}>
               <Circle
-                key={`c-${b.id}`}
                 center={{ latitude: b.centerLat, longitude: b.centerLng }}
                 radius={b.radiusMeters}
                 strokeWidth={2}
@@ -179,7 +178,6 @@ export default function MapTab() {
                 onPress={() => setSelectedBiome(b)}
               />
               <Marker
-                key={`m-${b.id}`}
                 coordinate={{ latitude: b.centerLat, longitude: b.centerLng }}
                 onPress={() => setSelectedBiome(b)}
                 zIndex={3}
@@ -188,7 +186,7 @@ export default function MapTab() {
               >
                 <View style={{ width: 1, height: 1, backgroundColor: 'transparent' }} />
               </Marker>
-            </>
+            </React.Fragment>
           );
         })}
         {points.map(p => (

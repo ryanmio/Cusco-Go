@@ -20,6 +20,17 @@ export default function MapTab() {
     listBiomes().filter((b: any) => b.type === 'circle') as CircleBiome[]
   ), []);
 
+  // Precompute color scaling for biome multipliers
+  const maxMult = useMemo(() => circles.reduce((m, b) => Math.max(m, b.multiplier), 1), [circles]);
+  function biomeColors(multiplier: number) {
+    const t = Math.max(0, Math.min(1, (multiplier - 1) / Math.max(1e-6, (maxMult - 1))));
+    const strokeA = 0.6 + 0.35 * t; // 0.6..0.95
+    const fillA = 0.12 + 0.18 * t;  // 0.12..0.30
+    const stroke = `rgba(245,158,11,${strokeA.toFixed(2)})`;
+    const fill = `rgba(245,158,11,${fillA.toFixed(2)})`;
+    return { stroke, fill };
+  }
+
   useEffect(() => {
     meRef.current = me;
   }, [me]);
@@ -139,7 +150,7 @@ export default function MapTab() {
         style={StyleSheet.absoluteFill} 
         provider={PROVIDER_DEFAULT}
         initialRegion={region}
-        showsUserLocation={false}
+        showsUserLocation={!!me}
         showsMyLocationButton={false}
         showsCompass={true}
         showsScale={true}
@@ -149,17 +160,20 @@ export default function MapTab() {
         rotateEnabled={true}
         mapType="standard"
       >
-        {circles.map(b => (
-          <Circle
-            key={b.id}
-            center={{ latitude: b.centerLat, longitude: b.centerLng }}
-            radius={b.radiusMeters}
-            strokeWidth={2}
-            strokeColor="rgba(245,158,11,0.9)"
-            fillColor="rgba(245,158,11,0.20)"
-            onPress={() => setSelectedBiome(b)}
-          />
-        ))}
+        {circles.map(b => {
+          const c = biomeColors(b.multiplier);
+          return (
+            <Circle
+              key={b.id}
+              center={{ latitude: b.centerLat, longitude: b.centerLng }}
+              radius={b.radiusMeters}
+              strokeWidth={2}
+              strokeColor={c.stroke}
+              fillColor={c.fill}
+              onPress={() => setSelectedBiome(b)}
+            />
+          );
+        })}
         {points.map(p => (
           <Marker 
             key={p.id} 
@@ -168,13 +182,6 @@ export default function MapTab() {
             pinColor="red"
           />
         ))}
-        {me ? (
-          <Marker
-            coordinate={me}
-            title="You"
-            pinColor="#118AB2"
-          />
-        ) : null}
       </MapView>
       <View style={styles.zoomHint}>
         <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>

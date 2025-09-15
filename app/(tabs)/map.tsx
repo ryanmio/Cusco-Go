@@ -1,14 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import MapView, { Marker, PROVIDER_DEFAULT, Circle } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
 import { addCapturesListener, listCaptures } from '@/lib/db';
+import { getSingleLocationOrNull } from '@/lib/location';
+import { listBiomes, CircleBiome } from '@/lib/biomes';
 
 export default function MapTab() {
   const [online, setOnline] = useState<boolean | null>(null);
   const [points, setPoints] = useState<{ id: number; latitude: number; longitude: number; title: string }[]>([]);
+  const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
   const mapRef = useRef<MapView | null>(null);
+
+  const circles = useMemo<CircleBiome[]>(() => (
+    listBiomes().filter((b: any) => b.type === 'circle') as CircleBiome[]
+  ), []);
 
   useEffect(() => {
     (async () => {
@@ -81,6 +88,18 @@ export default function MapTab() {
     });
   }, [online, points]);
 
+  async function locateMe() {
+    const loc = await getSingleLocationOrNull();
+    if (!loc) return;
+    setMe(loc);
+    mapRef.current?.animateToRegion({
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      latitudeDelta: 0.02,
+      longitudeDelta: 0.02,
+    }, 600);
+  }
+
   if (!online) {
     return (
       <View style={styles.center}> 
@@ -116,6 +135,16 @@ export default function MapTab() {
         rotateEnabled={true}
         mapType="standard"
       >
+        {circles.map(b => (
+          <Circle
+            key={b.id}
+            center={{ latitude: b.centerLat, longitude: b.centerLng }}
+            radius={b.radiusMeters}
+            strokeWidth={2}
+            strokeColor="rgba(245,158,11,0.9)"
+            fillColor="rgba(245,158,11,0.20)"
+          />
+        ))}
         {points.map(p => (
           <Marker 
             key={p.id} 
@@ -124,10 +153,20 @@ export default function MapTab() {
             pinColor="red"
           />
         ))}
+        {me ? (
+          <Marker
+            coordinate={me}
+            title="You"
+            pinColor="#118AB2"
+          />
+        ) : null}
       </MapView>
       <View style={styles.zoomHint}>
         <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
       </View>
+      <TouchableOpacity onPress={locateMe} style={styles.locateBtn} accessibilityRole="button" accessibilityLabel="Locate me">
+        <Text style={styles.locateBtnText}>Locate me</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -148,5 +187,19 @@ const styles = StyleSheet.create({
     borderRadius: 8 
   },
   zoomHintText: { color: 'white', fontSize: 12, textAlign: 'center' },
+  locateBtn: {
+    position: 'absolute',
+    right: 16,
+    bottom: 24,
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  locateBtnText: { color: 'white', fontWeight: '800' },
 });
 

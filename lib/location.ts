@@ -16,8 +16,7 @@ export async function getSingleLocationOrNull() {
     const accuracy = __DEV__ ? Location.Accuracy.Balanced : Location.Accuracy.High;
     const pos = await Location.getCurrentPositionAsync({ 
       accuracy,
-      maximumAge: 0,
-      timeout: 25000
+      mayShowUserSettingsDialog: true
     });
     return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
   } catch (error) {

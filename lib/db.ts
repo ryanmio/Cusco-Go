@@ -12,6 +12,16 @@ export type CaptureRow = {
   longitude?: number | null;
 };
 
+export type BonusEventRow = {
+  id: number;
+  captureId: number; // FK to captures.id
+  biomeId: string;
+  biomeLabel: string;
+  multiplier: number; // applied multiplier (e.g., 1.5)
+  bonusPoints: number; // computed extra points (not base)
+  createdAt: number; // epoch ms
+};
+
 let db: SQLite.SQLiteDatabase | null = null;
 
 // Simple in-memory event listeners for capture changes
@@ -40,6 +50,11 @@ export function getDb(): SQLite.SQLiteDatabase {
 }
 
 function initialize(database: SQLite.SQLiteDatabase) {
+  // Ensure FK constraints are enforced so bonus rows cascade on capture deletes
+  try {
+    database.execSync('PRAGMA foreign_keys = ON;');
+  } catch {}
+
   database.execSync(
     `CREATE TABLE IF NOT EXISTS captures (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,6 +86,23 @@ function initialize(database: SQLite.SQLiteDatabase) {
   );
   database.execSync(
     `CREATE INDEX IF NOT EXISTS idx_captures_photoTakenAt ON captures(photoTakenAt);`
+  );
+
+  // Bonuses table stores additional points awarded by biome multipliers per capture
+  database.execSync(
+    `CREATE TABLE IF NOT EXISTS bonuses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      captureId INTEGER NOT NULL,
+      biomeId TEXT NOT NULL,
+      biomeLabel TEXT NOT NULL,
+      multiplier REAL NOT NULL,
+      bonusPoints INTEGER NOT NULL,
+      createdAt INTEGER NOT NULL,
+      FOREIGN KEY(captureId) REFERENCES captures(id) ON DELETE CASCADE
+    );`
+  );
+  database.execSync(
+    `CREATE INDEX IF NOT EXISTS idx_bonuses_captureId ON bonuses(captureId);`
   );
 }
 
@@ -154,5 +186,40 @@ export function listDistinctCapturedItemIds(): string[] {
     `SELECT DISTINCT itemId FROM captures;`
   );
   return rows.map((r) => r.itemId);
+}
+
+export function insertBonusEvent(row: Omit<BonusEventRow, 'id'>): number {
+  const database = getDb();
+  const result = database.runSync(
+    `INSERT INTO bonuses (captureId, biomeId, biomeLabel, multiplier, bonusPoints, createdAt)
+     VALUES (?, ?, ?, ?, ?, ?);`,
+    [
+      row.captureId,
+      row.biomeId,
+      row.biomeLabel,
+      row.multiplier,
+      row.bonusPoints,
+      row.createdAt,
+    ]
+  );
+  const id = result.lastInsertRowId ?? 0;
+  emitCapturesChanged();
+  return id;
+}
+
+export function listBonusEventsForCapture(captureId: number): BonusEventRow[] {
+  const database = getDb();
+  return database.getAllSync<BonusEventRow>(
+    `SELECT * FROM bonuses WHERE captureId = ? ORDER BY createdAt ASC;`,
+    [captureId]
+  );
+}
+
+export function listAllBonuses(): BonusEventRow[] {
+  const database = getDb();
+  return database.getAllSync<BonusEventRow>(
+    `SELECT * FROM bonuses ORDER BY createdAt DESC;`,
+    []
+  );
 }
 

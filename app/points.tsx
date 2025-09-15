@@ -3,27 +3,30 @@ import { Animated, FlatList, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { addCapturesListener, listDistinctCapturedItemIds } from '@/lib/db';
+import { addCapturesListener, listDistinctCapturedItemIds, listCaptures, listAllBonuses } from '@/lib/db';
 import { HUNT_ITEMS } from '@/data/items';
 import GlassSurface from '@/components/GlassSurface';
+
+// We treat base points per item as difficulty. Bonuses are stored per capture and summed.
 
 type PointsEntry = {
   itemId: string;
   title: string;
-  difficulty: number;
-  multiplier: number; // placeholder for future location-based multiplier
-  points: number;
+  base: number;
+  bonus: number;
+  total: number;
+  details?: string; // e.g., "Amazon Jungle ×2.5 → +25"
 };
 
 export default function PointsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const [capturedIds, setCapturedIds] = useState<string[]>([]);
+  const [version, setVersion] = useState(0);
   const scrollY = React.useRef(new Animated.Value(0)).current;
 
   function refresh() {
-    const ids = listDistinctCapturedItemIds();
-    setCapturedIds(ids);
+    // Bump version when captures or bonuses change
+    setVersion((v) => v + 1);
   }
 
   useEffect(() => {
@@ -33,35 +36,57 @@ export default function PointsScreen() {
   }, []);
 
   const idToItem = useMemo(() => new Map(HUNT_ITEMS.map((i) => [i.id, i])), []);
-  const maxTotal = useMemo(() => HUNT_ITEMS.reduce((sum, i) => sum + i.difficulty, 0), []);
+  const maxBaseTotal = useMemo(() => HUNT_ITEMS.reduce((sum, i) => sum + i.difficulty, 0), []);
+  const maxTotal = maxBaseTotal;
 
   const entries: PointsEntry[] = useMemo(() => {
-    const multiplier = 1; // TODO: replace with location-based multiplier per item
-    const list = capturedIds
+    const distinctIds = listDistinctCapturedItemIds();
+    const allCaptures = listCaptures();
+    const allBonuses = listAllBonuses();
+
+    // For each captured item, compute base and bonus from the latest capture bonuses (or sum across captures?)
+    // We will sum bonuses across all captures for that item to reward multiple biome captures.
+    const itemIdToBonus = new Map<string, number>();
+    for (const b of allBonuses) {
+      const cap = allCaptures.find(c => c.id === b.captureId);
+      if (cap) {
+        const prev = itemIdToBonus.get(cap.itemId) ?? 0;
+        itemIdToBonus.set(cap.itemId, prev + b.bonusPoints);
+      }
+    }
+
+    const list: PointsEntry[] = distinctIds
       .map((id) => idToItem.get(id))
       .filter(Boolean)
       .map((item) => {
-        const difficulty = (item as any).difficulty as number;
+        const base = (item as any).difficulty as number;
+        const bonus = itemIdToBonus.get((item as any).id as string) ?? 0;
+        const total = base + bonus;
         return {
           itemId: (item as any).id as string,
           title: (item as any).title as string,
-          difficulty,
-          multiplier,
-          points: multiplier * difficulty,
+          base,
+          bonus,
+          total,
         } as PointsEntry;
       });
-    // Sort by points descending, then by title as a tiebreaker
-    return list.sort((a, b) => (b.points - a.points) || a.title.localeCompare(b.title));
-  }, [capturedIds, idToItem]);
+    return list.sort((a, b) => (b.total - a.total) || a.title.localeCompare(b.title));
+  }, [version, idToItem]);
 
-  const total = useMemo(() => entries.reduce((sum, e) => sum + e.points, 0), [entries]);
+  const baseTotal = useMemo(() => entries.reduce((sum, e) => sum + e.base, 0), [entries]);
+  const bonusTotal = useMemo(() => entries.reduce((sum, e) => sum + e.bonus, 0), [entries]);
+  const total = baseTotal + bonusTotal;
 
-  const progress = maxTotal > 0 ? Math.max(0, Math.min(1, total / maxTotal)) : 0;
+  // Donut progress reflects captured items (count) over total items, independent of bonus
+  const capturedCount = entries.length;
+  const totalItems = HUNT_ITEMS.length;
+  const progress = totalItems > 0 ? Math.max(0, Math.min(1, capturedCount / totalItems)) : 0;
+
   const scale = scrollY.interpolate({ inputRange: [0, 150], outputRange: [1, 0.55], extrapolate: 'clamp' });
   const cardHeight = scrollY.interpolate({ inputRange: [0, 150], outputRange: [170, 80], extrapolate: 'clamp' });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}> 
       {entries.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={[styles.emptyText, { color: colors.text }]}>No points yet</Text>
@@ -73,15 +98,13 @@ export default function PointsScreen() {
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             { useNativeDriver: false }
           )}
-          contentContainerStyle={[styles.list, { paddingTop: 210 }]}
+          contentContainerStyle={[styles.list, { paddingTop: 210 }]} 
           data={entries}
           keyExtractor={(e) => e.itemId}
           renderItem={({ item }) => (
-            <View style={[styles.card, { borderColor: colors.border }]}>
+            <View style={[styles.card, { borderColor: colors.border }]}> 
               <Text style={[styles.title, { color: colors.text }]}>{item.title}</Text>
-              <Text style={[styles.formula, { color: colors.text }]}>
-                {item.multiplier} x {item.difficulty} = {item.points} pts
-              </Text>
+              <Text style={[styles.formula, { color: colors.text }]}>Base {item.base} + Bonus {item.bonus} = {item.total} pts</Text>
             </View>
           )}
           ListFooterComponent={
@@ -105,18 +128,22 @@ export default function PointsScreen() {
           isInteractive
           fallbackStyle={{ backgroundColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.28)' }}
         >
-          <Animated.View style={{ transform: [{ scale }] }}>
+          <Animated.View style={[styles.headerRow, { transform: [{ scale }] }]}> 
             <ProgressDonut 
-              size={126}
+              size={96}
               strokeWidth={10}
               progress={progress}
               trackColor={colors.border}
               fillStart="#F59E0B"
               fillEnd={Colors[colorScheme ?? 'light'].tint}
               label={`${Math.round(progress * 100)}%`}
-              sublabel={`${total} / ${maxTotal} pts`}
               textColor={colors.text}
             />
+            <View style={styles.headerStats}>
+              <Text style={[styles.totalBig, { color: colors.text }]}>{total} pts</Text>
+              <Text style={[styles.totalLine, { color: colors.text }]}>{baseTotal} base</Text>
+              <Text style={[styles.totalLine, { color: colors.text }]}>{bonusTotal} bonus</Text>
+            </View>
           </Animated.View>
         </GlassSurface>
       </Animated.View>
@@ -183,7 +210,7 @@ function ProgressDonut({
         />
       </Svg>
       <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: textColor, fontSize: 20, fontWeight: '800' }}>{label}</Text>
+        <Text style={{ color: textColor, fontSize: 18, fontWeight: '800' }}>{label}</Text>
         {sublabel ? (
           <Text style={{ color: textColor, opacity: 0.7, marginTop: 2, fontWeight: '600' }}>{sublabel}</Text>
         ) : null}
@@ -195,14 +222,6 @@ function ProgressDonut({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   list: { padding: 16, paddingBottom: 64 },
-  chartContainer: { alignItems: 'center', justifyContent: 'center', paddingTop: 16, paddingBottom: 8 },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
   glassWrapper: {
     position: 'absolute',
     top: 0,
@@ -228,6 +247,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 12 },
     elevation: 12,
   },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  headerStats: { justifyContent: 'center' },
+  totalBig: { fontSize: 28, fontWeight: '900' },
+  totalLine: { fontSize: 14, fontWeight: '700', opacity: 0.85 },
   card: {
     borderWidth: 1,
     borderRadius: 12,

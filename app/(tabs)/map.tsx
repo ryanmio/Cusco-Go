@@ -1,14 +1,47 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT, Circle, MapPressEvent } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
 import { addCapturesListener, listCaptures } from '@/lib/db';
+import { getSingleLocationOrNull } from '@/lib/location';
+import { listBiomes, CircleBiome, distanceMeters } from '@/lib/biomes';
+import GlassSurface from '@/components/GlassSurface';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function MapTab() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+
   const [online, setOnline] = useState<boolean | null>(null);
   const [points, setPoints] = useState<{ id: number; latitude: number; longitude: number; title: string }[]>([]);
+  const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [selectedBiome, setSelectedBiome] = useState<CircleBiome | null>(null);
+  const meRef = useRef<{ latitude: number; longitude: number } | null>(null);
+  const lastFixAtRef = useRef<number>(0);
   const mapRef = useRef<MapView | null>(null);
+
+  const circles = useMemo<CircleBiome[]>(() => (
+    listBiomes().filter((b: any) => b.type === 'circle') as CircleBiome[]
+  ), []);
+
+  // Biome color scale (dull gold -> bright gold)
+  const maxMult = useMemo(() => circles.reduce((m, b) => Math.max(m, b.multiplier), 1), [circles]);
+  function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+  function goldColor(multiplier: number, alpha = 1) {
+    const low = { r: 176, g: 137, b: 0 };   // #B08900 (duller)
+    const high = { r: 255, g: 209, b: 102 }; // #FFD166 (bright)
+    const t = Math.max(0, Math.min(1, (multiplier - 1) / Math.max(1e-6, (maxMult - 1))));
+    const r = Math.round(lerp(low.r, high.r, t));
+    const g = Math.round(lerp(low.g, high.g, t));
+    const b = Math.round(lerp(low.b, high.b, t));
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  useEffect(() => {
+    meRef.current = me;
+  }, [me]);
 
   useEffect(() => {
     (async () => {
@@ -21,6 +54,25 @@ export default function MapTab() {
   useFocusEffect(
     React.useCallback(() => {
       loadPoints();
+      // Refresh GPS fix if we don't have one or it is stale (> 5 minutes)
+      const STALE_MS = 5 * 60 * 1000;
+      const now = Date.now();
+      const shouldRefresh = !lastFixAtRef.current || (now - lastFixAtRef.current) > STALE_MS;
+      if (shouldRefresh) {
+        (async () => {
+          const loc = await getSingleLocationOrNull();
+          if (loc) {
+            setMe(loc);
+            lastFixAtRef.current = Date.now();
+            mapRef.current?.animateToRegion({
+              latitude: loc.latitude,
+              longitude: loc.longitude,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            }, 600);
+          }
+        })();
+      }
       const unsubscribe = addCapturesListener(() => {
         loadPoints();
       });
@@ -81,6 +133,21 @@ export default function MapTab() {
     });
   }, [online, points]);
 
+  function onMapPress(e: MapPressEvent) {
+    const { coordinate } = e.nativeEvent;
+    // Hit-test tap against biome circles
+    const inside = circles
+      .map(b => ({ b, d: distanceMeters(coordinate.latitude, coordinate.longitude, b.centerLat, b.centerLng) }))
+      .filter(x => x.d <= x.b.radiusMeters);
+    if (inside.length > 0) {
+      // Pick highest multiplier; tie-breaker nearest
+      inside.sort((a, b) => (b.b.multiplier - a.b.multiplier) || (a.d - b.d));
+      setSelectedBiome(inside[0].b);
+    } else {
+      setSelectedBiome(null);
+    }
+  }
+
   if (!online) {
     return (
       <View style={styles.center}> 
@@ -99,6 +166,9 @@ export default function MapTab() {
     longitudeDelta: 0.5,
   };
 
+  const textColor = (colorScheme === 'dark') ? '#fff' : '#111';
+  const fallbackGlass = (colorScheme === 'dark') ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.85)';
+
   return (
     <View style={{ flex: 1 }}>
       <MapView 
@@ -106,7 +176,7 @@ export default function MapTab() {
         style={StyleSheet.absoluteFill} 
         provider={PROVIDER_DEFAULT}
         initialRegion={region}
-        showsUserLocation={false}
+        showsUserLocation={!!me}
         showsMyLocationButton={false}
         showsCompass={true}
         showsScale={true}
@@ -115,7 +185,23 @@ export default function MapTab() {
         pitchEnabled={true}
         rotateEnabled={true}
         mapType="standard"
+        onPress={onMapPress}
       >
+        {circles.map(b => {
+          const strokeColor = goldColor(b.multiplier, 1);
+          const fillColor = goldColor(b.multiplier, 0.28);
+          return (
+            <Circle
+              key={`biome-${b.id}`}
+              center={{ latitude: b.centerLat, longitude: b.centerLng }}
+              radius={b.radiusMeters}
+              strokeWidth={2}
+              strokeColor={strokeColor}
+              fillColor={fillColor}
+              zIndex={2}
+            />
+          );
+        })}
         {points.map(p => (
           <Marker 
             key={p.id} 
@@ -128,6 +214,21 @@ export default function MapTab() {
       <View style={styles.zoomHint}>
         <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
       </View>
+      {selectedBiome ? (
+        <View style={styles.biomeCardWrap} pointerEvents="box-none" onStartShouldSetResponder={() => true} onResponderRelease={() => setSelectedBiome(null)}>
+          <GlassSurface
+            style={styles.biomeGlass}
+            glassEffectStyle="regular"
+            isInteractive
+            fallbackStyle={{ backgroundColor: fallbackGlass }}
+          >
+            <View style={styles.biomeContent}>
+              <Text style={[styles.biomeTitle, { color: textColor }]}>{selectedBiome.label}</Text>
+              <Text style={[styles.biomeSubtitle, { color: textColor }]}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
+            </View>
+          </GlassSurface>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -148,5 +249,27 @@ const styles = StyleSheet.create({
     borderRadius: 8 
   },
   zoomHintText: { color: 'white', fontSize: 12, textAlign: 'center' },
+  biomeCardWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 112,
+    alignItems: 'center',
+  },
+  biomeGlass: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  biomeContent: { alignItems: 'center' },
+  biomeTitle: { fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
+  biomeSubtitle: { fontSize: 14, fontWeight: '800', opacity: 0.95, textAlign: 'center' },
 });
 

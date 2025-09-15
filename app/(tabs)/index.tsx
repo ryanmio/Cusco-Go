@@ -10,6 +10,7 @@ import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { addCapturesListener, getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
+import { evaluateAndRecordBiomeBonus } from '@/lib/biomeScoring';
 
 // Extract photo taken date from EXIF data
 function extractPhotoDateFromExif(exif: any | null): number | null {
@@ -65,7 +66,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 
 export default function HuntGridScreen() {
   const insets = useSafeAreaInsets();
-  const { celebrate } = useCelebration();
+  const { celebrate, celebrateBonus } = useCelebration();
   const [version, setVersion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'animal' | 'plant' | 'ruins'>('all');
@@ -204,15 +205,50 @@ export default function HuntGridScreen() {
       longitude: exifGps?.longitude ?? null,
     });
     setVersion(v => v + 1);
-    // Trigger global celebration slightly delayed to allow nav to settle
-    celebrate({ delayMs: 260, message: 'Captured!' });
-    // Navigate to the item's page
-    router.push(`/item/${itemId}`);
-    // If no EXIF GPS, resolve a fresh fix in the background and update row
+    // Trigger base celebration immediately so confetti is visible before navigating
+    celebrate({ delayMs: 0, message: 'Captured!' });
+    // Fire biome bonus in background (based on EXIF GPS if present)
+    const item = HUNT_ITEMS.find(i => i.id === itemId);
+    const basePoints = item?.difficulty ?? 0;
+    if (basePoints > 0) {
+      setTimeout(async () => {
+        const res = await evaluateAndRecordBiomeBonus({
+          captureId: id,
+          latitude: exifGps?.latitude ?? null,
+          longitude: exifGps?.longitude ?? null,
+          basePoints,
+        });
+        if (res.awarded && res.bonusPoints > 0 && res.biomeLabel && res.multiplier) {
+          celebrateBonus({
+            delayMs: 0,
+            message: `${res.biomeLabel} ×${res.multiplier.toFixed(1)} → +${res.bonusPoints} pts`,
+          });
+        }
+      }, 100);
+    }
+    // Navigate to the item's page after a short delay to let confetti begin
+    setTimeout(() => {
+      router.push(`/item/${itemId}`);
+    }, 150);
+    // If no EXIF GPS, resolve a fresh fix in the background and update row, then try bonus
     if (!exifGps) {
-      getSingleLocationOrNull().then((loc) => {
+      getSingleLocationOrNull().then(async (loc) => {
         if (loc) {
           updateCaptureLocation(id, loc.latitude, loc.longitude);
+          if (basePoints > 0) {
+            const res = await evaluateAndRecordBiomeBonus({
+              captureId: id,
+              latitude: loc.latitude,
+              longitude: loc.longitude,
+              basePoints,
+            });
+            if (res.awarded && res.bonusPoints > 0 && res.biomeLabel && res.multiplier) {
+              celebrateBonus({
+                delayMs: 0,
+                message: `${res.biomeLabel} ×${res.multiplier.toFixed(1)} → +${res.bonusPoints} pts`,
+              });
+            }
+          }
         }
       }).finally(() => {
         setProcessingItemId(null);

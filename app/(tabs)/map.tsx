@@ -212,7 +212,7 @@ export default function MapTab() {
             style={styles.biomeGlass}
             glassEffectStyle="regular"
             isInteractive
-            fallbackStyle={{ backgroundColor: 'rgba(255,255,255,0.28)' }}
+            fallbackStyle={{ backgroundColor: 'rgba(255,255,255,0.85)' }}
           >
             <View style={styles.biomeContent}>
               <Text style={styles.biomeTitle}>{selectedBiome.label}</Text>
@@ -249,9 +249,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   biomeGlass: {
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.5)',
     shadowColor: '#000',
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
   },
   biomeContent: { alignItems: 'center' },
-  biomeTitle: { color: '#fff', fontSize: 16, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
-  biomeSubtitle: { color: '#fff', fontSize: 13, fontWeight: '700', opacity: 0.9, textAlign: 'center' },
+  biomeTitle: { color: '#111', fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
+  biomeSubtitle: { color: '#222', fontSize: 14, fontWeight: '800', opacity: 0.95, textAlign: 'center' },
 });
 

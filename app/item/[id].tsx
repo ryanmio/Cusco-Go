@@ -9,6 +9,8 @@ import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { removeFileIfExists } from '@/lib/files';
+import GlassSurface from '@/components/GlassSurface';
+import Colors from '@/constants/Colors';
 
 // Extract photo taken date from EXIF data
 function extractPhotoDateFromExif(exif: any | null): number | null {
@@ -243,28 +245,41 @@ export default function ItemDetailScreen() {
         />
         {latestCapture && (
           <>
-            <Pressable style={styles.viewButton} onPress={onViewPhoto}>
-              <Text style={styles.viewButtonText}>View Full Size</Text>
-            </Pressable>
-            <Pressable ref={menuButtonRef} style={styles.menuButton} onPress={onMenuPress}>
-              <Text style={styles.menuButtonText}>⋯</Text>
-            </Pressable>
+            <GlassSurface glassEffectStyle="regular" isInteractive style={styles.glassActionChip}>
+              <Pressable style={styles.glassPressable} onPress={onViewPhoto}>
+                <Text style={styles.viewButtonText}>View Full Size</Text>
+              </Pressable>
+            </GlassSurface>
+            <GlassSurface glassEffectStyle="regular" isInteractive style={[styles.glassActionChip, styles.glassMenuChip]}>
+              <Pressable ref={menuButtonRef} style={styles.glassPressable} onPress={onMenuPress}>
+                <Text style={styles.viewButtonText}>⋯</Text>
+              </Pressable>
+            </GlassSurface>
           </>
+        )}
+        {!latestCapture && (
+          <GlassSurface
+            glassEffectStyle="regular"
+            isInteractive
+            tintColor={Colors.dark.tint}
+            style={styles.glassActionChip}
+            fallbackStyle={styles.glassBlueFallback}
+          >
+            <Pressable style={styles.glassPressable} onPress={onCapture}>
+              <Text style={styles.viewButtonText}>Capture Photo</Text>
+            </Pressable>
+          </GlassSurface>
         )}
       </View>
       
       <View style={styles.content}>
         <Text style={styles.title}>{item.title}</Text>
         <View style={styles.categoryContainer}>
-          <Text style={styles.category}>{item.category.toUpperCase()}</Text>
+          <Text style={styles.category}>{(item.category === 'place' ? 'RUIN' : item.category.toUpperCase())}</Text>
         </View>
         <Text style={styles.description}>{item.description}</Text>
         
-        {!latestCapture && (
-          <Pressable style={styles.captureButton} onPress={onCapture}>
-            <Text style={styles.captureButtonText}>Capture Photo</Text>
-          </Pressable>
-        )}
+        {!latestCapture && null}
       </View>
     </ScrollView>
   );
@@ -295,6 +310,25 @@ const styles = StyleSheet.create({
     borderRadius: 20 
   },
   menuButtonText: { color: 'white', fontWeight: '600', fontSize: 18 },
+  glassActionChip: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  glassMenuChip: {
+    top: 16,
+    bottom: undefined,
+  },
+  glassPressable: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  glassBlueFallback: {
+    backgroundColor: 'rgba(10,132,255,0.24)',
+    borderColor: 'rgba(10,132,255,0.4)',
+  },
   content: { padding: 20 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 8 },
   categoryContainer: { marginBottom: 16 },

@@ -1,5 +1,6 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import { Alert, Image, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
@@ -13,6 +14,8 @@ export default function Viewer() {
   const { uri } = useLocalSearchParams<{ uri: string }>();
 
   console.log('Viewer URI:', uri);
+
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     // Ensure permission prompt happens when saving
@@ -80,31 +83,43 @@ export default function Viewer() {
     );
   }
 
+  const bottomOverlaySpace = 12 + Math.max(insets.bottom, 12) + 56;
+
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'black' }}>
-      <ScrollView
-        contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        maximumZoomScale={3}
-        minimumZoomScale={1}
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        bouncesZoom
-        centerContent
-      >
-        <Image
-          source={{ uri: String(uri) }}
-          style={styles.image}
-          resizeMode="contain"
-          onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
-          onLoad={() => console.log('Image loaded successfully')}
-        />
-      </ScrollView>
-      <FullScreenActions onSave={onSave} onShare={onShare} onDelete={onDelete} />
+      <View style={{ flex: 1 }}>
+        <View style={[styles.frame, { bottom: bottomOverlaySpace }]}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
+            maximumZoomScale={3}
+            minimumZoomScale={1}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            bouncesZoom
+            centerContent
+          >
+            <Image
+              source={{ uri: String(uri) }}
+              style={styles.image}
+              resizeMode="contain"
+              onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
+              onLoad={() => console.log('Image loaded successfully')}
+            />
+          </ScrollView>
+        </View>
+        <FullScreenActions onSave={onSave} onShare={onShare} onDelete={onDelete} />
+      </View>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  frame: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
   image: { 
     width: '100%', 
     height: '100%',

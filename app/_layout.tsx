@@ -90,7 +90,11 @@ function RootLayoutNav() {
                   accessibilityLabel="How to Play"
                   accessibilityRole="button"
                 >
-                  <FontAwesome name="question-circle" size={18} />
+                  <FontAwesome
+                    name="question-circle"
+                    size={18}
+                    color={colorScheme === 'dark' ? '#d1d5db' : undefined}
+                  />
                 </Pressable>
               ),
               headerRight: () => <PointsTally />,

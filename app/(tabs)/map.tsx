@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, Circle, MapPressEvent } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
@@ -206,13 +206,10 @@ export default function MapTab() {
         <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
       </View>
       {selectedBiome ? (
-        <View style={styles.biomeCardWrap} pointerEvents="box-none">
+        <View style={styles.biomeCardWrap} pointerEvents="box-none" onStartShouldSetResponder={() => true} onResponderRelease={() => setSelectedBiome(null)}>
           <View style={styles.biomeCard} accessibilityRole="summary">
             <Text style={styles.biomeTitle}>{selectedBiome.label}</Text>
             <Text style={styles.biomeSubtitle}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
-            <TouchableOpacity onPress={() => setSelectedBiome(null)} style={styles.biomeCloseBtn} accessibilityRole="button" accessibilityLabel="Close biome info">
-              <Text style={styles.biomeCloseText}>Close</Text>
-            </TouchableOpacity>
           </View>
         </View>
       ) : null}
@@ -240,13 +237,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 24,
+    bottom: 112,
     alignItems: 'center',
   },
   biomeCard: {
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: 'rgba(0,0,0,0.82)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.4)',
@@ -255,9 +252,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 8 },
   },
-  biomeTitle: { color: 'white', fontSize: 16, fontWeight: '800', marginBottom: 4, textAlign: 'center' },
-  biomeSubtitle: { color: 'white', fontSize: 14, fontWeight: '700', opacity: 0.9, textAlign: 'center' },
-  biomeCloseBtn: { marginTop: 10, alignSelf: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.15)' },
-  biomeCloseText: { color: 'white', fontWeight: '800' },
+  biomeTitle: { color: 'white', fontSize: 16, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
+  biomeSubtitle: { color: 'white', fontSize: 13, fontWeight: '700', opacity: 0.9, textAlign: 'center' },
 });
 

@@ -166,17 +166,29 @@ export default function MapTab() {
           const strokeColor = goldColor(b.multiplier, 1);
           const fillColor = goldColor(b.multiplier, 0.28);
           return (
-            <Circle
-              key={b.id}
-              center={{ latitude: b.centerLat, longitude: b.centerLng }}
-              radius={b.radiusMeters}
-              strokeWidth={2}
-              strokeColor={strokeColor}
-              fillColor={fillColor}
-              zIndex={2}
-              tappable={true}
-              onPress={() => setSelectedBiome(b)}
-            />
+            <>
+              <Circle
+                key={`c-${b.id}`}
+                center={{ latitude: b.centerLat, longitude: b.centerLng }}
+                radius={b.radiusMeters}
+                strokeWidth={2}
+                strokeColor={strokeColor}
+                fillColor={fillColor}
+                zIndex={2}
+                tappable={true}
+                onPress={() => setSelectedBiome(b)}
+              />
+              <Marker
+                key={`m-${b.id}`}
+                coordinate={{ latitude: b.centerLat, longitude: b.centerLng }}
+                onPress={() => setSelectedBiome(b)}
+                zIndex={3}
+                anchor={{ x: 0.5, y: 0.5 }}
+                tracksViewChanges={false}
+              >
+                <View style={{ width: 1, height: 1, backgroundColor: 'transparent' }} />
+              </Marker>
+            </>
           );
         })}
         {points.map(p => (

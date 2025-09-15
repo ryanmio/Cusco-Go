@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, Circle } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
@@ -11,11 +11,16 @@ export default function MapTab() {
   const [online, setOnline] = useState<boolean | null>(null);
   const [points, setPoints] = useState<{ id: number; latitude: number; longitude: number; title: string }[]>([]);
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
+  const meRef = useRef<{ latitude: number; longitude: number } | null>(null);
   const mapRef = useRef<MapView | null>(null);
 
   const circles = useMemo<CircleBiome[]>(() => (
     listBiomes().filter((b: any) => b.type === 'circle') as CircleBiome[]
   ), []);
+
+  useEffect(() => {
+    meRef.current = me;
+  }, [me]);
 
   useEffect(() => {
     (async () => {
@@ -28,6 +33,21 @@ export default function MapTab() {
   useFocusEffect(
     React.useCallback(() => {
       loadPoints();
+      // Trigger a single on-demand fix when the map first gains focus
+      if (!meRef.current) {
+        (async () => {
+          const loc = await getSingleLocationOrNull();
+          if (loc) {
+            setMe(loc);
+            mapRef.current?.animateToRegion({
+              latitude: loc.latitude,
+              longitude: loc.longitude,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            }, 600);
+          }
+        })();
+      }
       const unsubscribe = addCapturesListener(() => {
         loadPoints();
       });
@@ -87,18 +107,6 @@ export default function MapTab() {
       animated: true,
     });
   }, [online, points]);
-
-  async function locateMe() {
-    const loc = await getSingleLocationOrNull();
-    if (!loc) return;
-    setMe(loc);
-    mapRef.current?.animateToRegion({
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      latitudeDelta: 0.02,
-      longitudeDelta: 0.02,
-    }, 600);
-  }
 
   if (!online) {
     return (
@@ -164,9 +172,6 @@ export default function MapTab() {
       <View style={styles.zoomHint}>
         <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
       </View>
-      <TouchableOpacity onPress={locateMe} style={styles.locateBtn} accessibilityRole="button" accessibilityLabel="Locate me">
-        <Text style={styles.locateBtnText}>Locate me</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -187,19 +192,5 @@ const styles = StyleSheet.create({
     borderRadius: 8 
   },
   zoomHintText: { color: 'white', fontSize: 12, textAlign: 'center' },
-  locateBtn: {
-    position: 'absolute',
-    right: 16,
-    bottom: 24,
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-  },
-  locateBtnText: { color: 'white', fontWeight: '800' },
 });
 

@@ -12,6 +12,7 @@ export default function MapTab() {
   const [points, setPoints] = useState<{ id: number; latitude: number; longitude: number; title: string }[]>([]);
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
   const meRef = useRef<{ latitude: number; longitude: number } | null>(null);
+  const lastFixAtRef = useRef<number>(0);
   const mapRef = useRef<MapView | null>(null);
 
   const circles = useMemo<CircleBiome[]>(() => (
@@ -33,12 +34,16 @@ export default function MapTab() {
   useFocusEffect(
     React.useCallback(() => {
       loadPoints();
-      // Trigger a single on-demand fix when the map first gains focus
-      if (!meRef.current) {
+      // Refresh GPS fix if we don't have one or it is stale (> 2 minutes)
+      const STALE_MS = 2 * 60 * 1000;
+      const now = Date.now();
+      const shouldRefresh = !lastFixAtRef.current || (now - lastFixAtRef.current) > STALE_MS;
+      if (shouldRefresh) {
         (async () => {
           const loc = await getSingleLocationOrNull();
           if (loc) {
             setMe(loc);
+            lastFixAtRef.current = Date.now();
             mapRef.current?.animateToRegion({
               latitude: loc.latitude,
               longitude: loc.longitude,

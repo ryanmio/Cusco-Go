@@ -14,6 +14,7 @@
       "backgroundColor": "#F2A900"
     },
     "ios": {
+      "icon": "./assets/cusco-go.icon",
       "supportsTablet": true,
       "bundleIdentifier": "dev.cuscogo.app",
       "buildNumber": "13",

@@ -14,7 +14,7 @@
     "type": "circle",
     "centerLat": -13.51671,
     "centerLng": -71.97882,
-    "radiusMeters": 3000,
+    "radiusMeters": 6000,
     "multiplier": 1.5
   },
   {
@@ -23,7 +23,7 @@
     "type": "circle",
     "centerLat": -13.333,
     "centerLng": -72.083,
-    "radiusMeters": 25000,
+    "radiusMeters": 7500,
     "multiplier": 1.5
   },
   {
@@ -36,31 +36,22 @@
     "multiplier": 3.0
   },
   {
-    "id": "amazon",
-    "label": "Amazon Jungle (Puerto Maldonado / Tambopata)",
-    "type": "circle",
-    "centerLat": -12.6,
-    "centerLng": -69.18333,
-    "radiusMeters": 50000,
-    "multiplier": 2.5
-  },
-  {
-    "id": "titicaca",
+    "id": "lake-titicaca",
     "label": "Lake Titicaca (Puno Highlands)",
     "type": "circle",
-    "centerLat": -15.84333,
-    "centerLng": -70.02361,
+    "centerLat": -15.6658771680175,
+    "centerLng": -69.53002575527593,
     "radiusMeters": 50000,
     "multiplier": 2.0
   },
   {
-    "id": "arequipa-colca",
-    "label": "Arequipa & Colca Canyon",
+    "id": "arequipa",
+    "label": "Arequipa (Colonial City & Volcano Views)",
     "type": "circle",
     "centerLat": -16.39889,
     "centerLng": -71.53694,
-    "radiusMeters": 100000,
-    "multiplier": 1.8
+    "radiusMeters": 15000,
+    "multiplier": 1.6
   },
   {
     "id": "test_home_machu",
@@ -69,6 +60,285 @@
     "centerLat": 38.864574043109855,
     "centerLng": -77.18481510075861,
     "radiusMeters": 500,
-    "multiplier": 3.0
+    "multiplier": 1.2
+  },
+  {
+    "id": "choquequirao",
+    "label": "Choquequirao",
+    "type": "circle",
+    "centerLat": -13.3928,
+    "centerLng": -72.8739,
+    "radiusMeters": 5000,
+    "multiplier": 2.2
+  },
+  {
+    "id": "nazca-lines",
+    "label": "Nazca Lines",
+    "type": "circle",
+    "centerLat": -14.6975,
+    "centerLng": -75.135,
+    "radiusMeters": 15000,
+    "multiplier": 2.5
+  },
+  {
+    "id": "kuelap",
+    "label": "Kuélap Fortress",
+    "type": "circle",
+    "centerLat": -6.4263,
+    "centerLng": -77.9271,
+    "radiusMeters": 5000,
+    "multiplier": 1.9
+  },
+  {
+    "id": "chan-chan",
+    "label": "Chan Chan Ruins",
+    "type": "circle",
+    "centerLat": -8.1058,
+    "centerLng": -79.0744,
+    "radiusMeters": 5000,
+    "multiplier": 2.2
+  },
+  {
+    "id": "chavin",
+    "label": "Chavín de Huántar",
+    "type": "circle",
+    "centerLat": -9.5928,
+    "centerLng": -77.1785,
+    "radiusMeters": 1000,
+    "multiplier": 1.8
+  },
+  {
+    "id": "caral-supe",
+    "label": "Caral-Supe",
+    "type": "circle",
+    "centerLat": -10.8928,
+    "centerLng": -77.5211,
+    "radiusMeters": 3000,
+    "multiplier": 2.0
+  },
+  {
+    "id": "sipan-tombs",
+    "label": "Sipán Tombs (Huaca Rajada)",
+    "type": "circle",
+    "centerLat": -6.8103,
+    "centerLng": -79.6017,
+    "radiusMeters": 1500,
+    "multiplier": 1.7
+  },
+  {
+    "id": "manu-biosphere",
+    "label": "Manu National Park",
+    "type": "circle",
+    "centerLat": -12.04094,
+    "centerLng": -71.72293,
+    "radiusMeters": 50000,
+    "multiplier": 2.5
+  },
+  {
+    "id": "paracas-reserve",
+    "label": "Paracas Reserve",
+    "type": "circle",
+    "centerLat": -13.8954,
+    "centerLng": -76.2711,
+    "radiusMeters": 30000,
+    "multiplier": 1.9
+  },
+  {
+    "id": "pacaya-samiria",
+    "label": "Pacaya-Samiria Reserve",
+    "type": "circle",
+    "centerLat": -5.25,
+    "centerLng": -74.667,
+    "radiusMeters": 50000,
+    "multiplier": 2.3
+  },
+  {
+    "id": "tumbes-mangroves",
+    "label": "Tumbes Mangroves",
+    "type": "circle",
+    "centerLat": -3.4269,
+    "centerLng": -80.2768,
+    "radiusMeters": 5000,
+    "multiplier": 1.5
+  },
+  {
+    "id": "gocta-falls",
+    "label": "Gocta Falls",
+    "type": "circle",
+    "centerLat": -6.0204,
+    "centerLng": -77.8861,
+    "radiusMeters": 2000,
+    "multiplier": 1.4
+  },
+  {
+    "id": "vinicunca",
+    "label": "Rainbow Mountain",
+    "type": "circle",
+    "centerLat": -13.8693,
+    "centerLng": -71.3029,
+    "radiusMeters": 3000,
+    "multiplier": 1.6
+  },
+  {
+    "id": "huacachina-oasis",
+    "label": "Huacachina Oasis",
+    "type": "circle",
+    "centerLat": -14.0875,
+    "centerLng": -75.7626,
+    "radiusMeters": 2000,
+    "multiplier": 1.2
+  },
+  {
+    "id": "cordillera-huayhuash",
+    "label": "Cordillera Huayhuash",
+    "type": "circle",
+    "centerLat": -10.39,
+    "centerLng": -76.87,
+    "radiusMeters": 20000,
+    "multiplier": 1.5
+  },
+  {
+    "id": "nor-yauyos-cochas",
+    "label": "Nor Yauyos-Cochas",
+    "type": "circle",
+    "centerLat": -12.091,
+    "centerLng": -75.835,
+    "radiusMeters": 30000,
+    "multiplier": 1.3
+  },
+  {
+    "id": "marcahuasi",
+    "label": "Marcahuasi Plateau",
+    "type": "circle",
+    "centerLat": -11.7889,
+    "centerLng": -76.5736,
+    "radiusMeters": 2000,
+    "multiplier": 1.2
+  },
+  {
+    "id": "pampa-galeras",
+    "label": "Pampa Galeras",
+    "type": "circle",
+    "centerLat": -14.693,
+    "centerLng": -74.369,
+    "radiusMeters": 5000,
+    "multiplier": 1.4
+  },
+  {
+    "id": "oxapampa-cloud",
+    "label": "Oxapampa Cloud Forest",
+    "type": "circle",
+    "centerLat": -10.3542,
+    "centerLng": -75.4491,
+    "radiusMeters": 40000,
+    "multiplier": 1.4
+  },
+  {
+    "id": "huascaran-national-park",
+    "label": "Huascarán National Park",
+    "type": "circle",
+    "centerLat": -9.3333,
+    "centerLng": -77.4,
+    "radiusMeters": 20000,
+    "multiplier": 2.0
+  },
+  {
+    "id": "huayllay-stone-forest",
+    "label": "Huayllay Stone Forest",
+    "type": "circle",
+    "centerLat": -11.00034,
+    "centerLng": -76.36597,
+    "radiusMeters": 5000,
+    "multiplier": 1.5
+  },
+  {
+    "id": "qeswachaka-bridge",
+    "label": "Q'eswachaka Inca Bridge",
+    "type": "circle",
+    "centerLat": -14.38132,
+    "centerLng": -71.48401,
+    "radiusMeters": 500,
+    "multiplier": 1.5
+  },
+  {
+    "id": "cotahuasi-canyon",
+    "label": "Cotahuasi Canyon",
+    "type": "circle",
+    "centerLat": -15.267,
+    "centerLng": -73.033,
+    "radiusMeters": 20000,
+    "multiplier": 1.5
+  },
+  {
+    "id": "rupac-ruins",
+    "label": "Rúpac Ruins",
+    "type": "circle",
+    "centerLat": -11.54917,
+    "centerLng": -76.81361,
+    "radiusMeters": 1500,
+    "multiplier": 1.3
+  },
+  {
+    "id": "bosque-de-pomac",
+    "label": "Bosque de Pómac",
+    "type": "circle",
+    "centerLat": -6.51806,
+    "centerLng": -79.70611,
+    "radiusMeters": 5000,
+    "multiplier": 1.3
+  },
+  {
+    "id": "tres-canones",
+    "label": "Tres Cañones",
+    "type": "circle",
+    "centerLat": -14.97552,
+    "centerLng": -71.60955,
+    "radiusMeters": 5000,
+    "multiplier": 1.3
+  },
+  {
+    "id": "canyon-of-the-lost",
+    "label": "Cañón de los Perdidos",
+    "type": "circle",
+    "centerLat": -14.8138,
+    "centerLng": -75.5169,
+    "radiusMeters": 5000,
+    "multiplier": 1.2
+  },
+  {
+    "id": "puno",
+    "label": "Puno (City & Islands Hub)",
+    "type": "circle",
+    "centerLat": -15.839571629761497,
+    "centerLng": -70.02305440850158,
+    "radiusMeters": 5000,
+    "multiplier": 1.5
+  },
+  {
+    "id": "colca-canyon",
+    "label": "Colca Canyon (Condors & Terraces)",
+    "type": "circle",
+    "centerLat": -15.6225,
+    "centerLng": -72.0042,
+    "radiusMeters": 20000,
+    "multiplier": 1.8
+  },
+  {
+    "id": "puerto-maldonado",
+    "label": "Puerto Maldonado (Amazon Gateway)",
+    "type": "circle",
+    "centerLat": -12.591176206047296,
+    "centerLng": -69.20126029336988,
+    "radiusMeters": 20000,
+    "multiplier": 1.8
+  },
+  {
+    "id": "hoja-nueva",
+    "label": "Hoja Nueva (Tambopata Research Station)",
+    "type": "circle",
+    "centerLat": -12.052711188598837,
+    "centerLng": -69.53203609497297,
+    "radiusMeters": 15000,
+    "multiplier": 2.0
   }
 ]

@@ -15,6 +15,9 @@ prepare_react_native_project!
 target 'CuscoGo' do
   use_expo_modules!
 
+  # Generate module maps for all pods so Swift can import static libs
+  use_modular_headers!
+
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
   else
@@ -41,7 +44,9 @@ target 'CuscoGo' do
     :privacy_file_aggregation_enabled => podfile_properties['apple.privacyManifestAggregationEnabled'] != 'false',
   )
 
-  # SDWebImage and SDWebImageSVGCoder will be resolved transitively; using frameworks avoids modular header issues
+  # Ensure SDWebImage targets generate module maps for Swift import
+  pod 'SDWebImage', :modular_headers => true
+  pod 'SDWebImageSVGCoder', :modular_headers => true
 
   post_install do |installer|
     react_native_post_install(
@@ -50,5 +55,15 @@ target 'CuscoGo' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => podfile_properties['apple.ccacheEnabled'] == 'true',
     )
+
+    # Force module generation for SDWebImage pods to satisfy Swift static linking
+    installer.pods_project.targets.each do |target|
+      if ['SDWebImage', 'SDWebImageCore', 'SDWebImageWebPCoder', 'SDWebImageSVGCoder'].include?(target.name)
+        target.build_configurations.each do |config|
+          config.build_settings['DEFINES_MODULE'] = 'YES'
+          config.build_settings['CLANG_ENABLE_MODULES'] = 'YES'
+        end
+      end
+    end
   end
 end

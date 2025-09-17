@@ -41,9 +41,7 @@ target 'CuscoGo' do
     :privacy_file_aggregation_enabled => podfile_properties['apple.privacyManifestAggregationEnabled'] != 'false',
   )
 
-  # Ensure Swift can import these transitive deps as modules when linking statically
-  pod 'SDWebImage', :modular_headers => true
-  pod 'SDWebImageSVGCoder', :modular_headers => true
+  # SDWebImage and SDWebImageSVGCoder will be resolved transitively; using frameworks avoids modular header issues
 
   post_install do |installer|
     react_native_post_install(

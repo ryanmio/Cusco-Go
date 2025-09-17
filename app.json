@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/splash-icon.jpg",
       "resizeMode": "cover",
       "backgroundColor": "#F2A900"
     },
@@ -46,9 +46,9 @@
         {
           "backgroundColor": "#F2A900",
           "resizeMode": "cover",
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash-icon.jpg",
           "dark": {
-            "image": "./assets/images/splash-icon.png",
+            "image": "./assets/images/splash-icon.jpg",
             "backgroundColor": "#000000"
           }
         }

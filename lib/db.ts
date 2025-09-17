@@ -104,6 +104,14 @@ function initialize(database: SQLite.SQLiteDatabase) {
   database.execSync(
     `CREATE INDEX IF NOT EXISTS idx_bonuses_captureId ON bonuses(captureId);`
   );
+
+  // Key-Value settings table for app flags (e.g., onboarding)
+  database.execSync(
+    `CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY NOT NULL,
+      value TEXT
+    );`
+  );
 }
 
 export function insertCapture(row: Omit<CaptureRow, 'id'>): number {
@@ -222,4 +230,29 @@ export function listAllBonuses(): BonusEventRow[] {
     []
   );
 }
+
+// --- Settings helpers ---
+export function setSetting(key: string, value: string | null) {
+  const database = getDb();
+  if (value === null) {
+    database.runSync(`DELETE FROM settings WHERE key = ?;`, [key]);
+    return;
+  }
+  database.runSync(
+    `INSERT INTO settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value;`,
+    [key, value]
+  );
+}
+
+export function getSetting(key: string): string | null {
+  const database = getDb();
+  const row = database.getFirstSync<{ value: string }>(
+    `SELECT value FROM settings WHERE key = ? LIMIT 1;`,
+    [key]
+  );
+  return row?.value ?? null;
+}
+
+export const ONBOARDED_KEY = 'has_onboarded_v1';
 

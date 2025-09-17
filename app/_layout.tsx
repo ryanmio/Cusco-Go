@@ -43,26 +43,7 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // Ensure devices fetch the latest JS bundle when an update is published
-  useEffect(() => {
-    async function maybeFetchUpdate() {
-      try {
-        const Updates = await import('expo-updates');
-        const result = await Updates.checkForUpdateAsync();
-        if (result.isAvailable) {
-          await Updates.fetchUpdateAsync();
-          await Updates.reloadAsync();
-        }
-      } catch {
-        // Silently ignore when Updates isn't available (e.g., Simulator/dev-only env)
-      }
-    }
-    // Only run on non-development JS environments
-    if (!__DEV__) {
-      // Fire and forget; avoid blocking UI
-      maybeFetchUpdate();
-    }
-  }, []);
+  // Removed EAS Update auto-fetch to avoid update warnings and network overhead
 
   if (!loaded) {
     return null;

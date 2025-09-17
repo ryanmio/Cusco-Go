@@ -17,7 +17,7 @@
       "icon": "./assets/cusco-go.icon",
       "supportsTablet": true,
       "bundleIdentifier": "dev.cuscogo.app",
-      "buildNumber": "15",
+      "buildNumber": "14",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow camera access to capture scavenger hunt photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow saving captured photos and thumbnails to your Photos library.",

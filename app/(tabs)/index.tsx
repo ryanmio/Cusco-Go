@@ -11,6 +11,7 @@ import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { addCapturesListener, getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { evaluateAndRecordBiomeBonus } from '@/lib/biomeScoring';
+import * as MediaLibrary from 'expo-media-library';
 
 // Extract photo taken date from EXIF data
 function extractPhotoDateFromExif(exif: any | null): number | null {
@@ -167,11 +168,11 @@ export default function HuntGridScreen() {
             // Pre-warm location permission only when capturing
             await ensureWhenInUsePermission();
             const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null);
+            if (!cam.canceled) await handlePicked(cam.assets[0].uri, itemId, title, cam.assets[0].exif ?? null, true);
           } else if (index === 2) {
             await ImagePicker.requestMediaLibraryPermissionsAsync();
             const lib = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
-            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null);
+            if (!lib.canceled) await handlePicked(lib.assets[0].uri, itemId, title, lib.assets[0].exif ?? null, false);
           } else if (index === 3) {
             // Navigate to item details page
             router.push(`/item/${itemId}`);
@@ -183,7 +184,34 @@ export default function HuntGridScreen() {
     );
   }
 
-  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
+  async function silentlySaveToPhotosIfPermitted(localUri: string) {
+    try {
+      const perm = await MediaLibrary.getPermissionsAsync();
+      if (!perm.granted) return; // Stay silent; do not prompt
+      const asset = await MediaLibrary.createAssetAsync(localUri);
+      try {
+        const albumName = 'Cusco Go';
+        let album = await MediaLibrary.getAlbumAsync(albumName);
+        if (!album) {
+          album = await MediaLibrary.createAlbumAsync(albumName, asset, false);
+        } else {
+          await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+        }
+      } catch {}
+    } catch {}
+  }
+
+  async function ensurePhotosPermissionRequestedOnce() {
+    try {
+      const perm = await MediaLibrary.getPermissionsAsync();
+      if (perm.granted) return;
+      if (perm.canAskAgain) {
+        await MediaLibrary.requestPermissionsAsync();
+      }
+    } catch {}
+  }
+
+  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null, isFromCamera: boolean = false) {
     setProcessingItemId(itemId);
     setOptimisticThumbUri(null);
     const stamp = Date.now();
@@ -230,6 +258,12 @@ export default function HuntGridScreen() {
     setTimeout(() => {
       router.push(`/item/${itemId}`);
     }, 150);
+
+    // Silent background save to Photos for camera captures only
+    if (isFromCamera) {
+      await ensurePhotosPermissionRequestedOnce();
+      silentlySaveToPhotosIfPermitted(saved.originalUri);
+    }
     // If no EXIF GPS, resolve a fresh fix in the background and update row, then try bonus
     if (!exifGps) {
       getSingleLocationOrNull().then(async (loc) => {

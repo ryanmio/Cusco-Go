@@ -160,6 +160,12 @@ export default function ItemDetailScreen() {
               latitude: loc?.latitude ?? null,
               longitude: loc?.longitude ?? null,
             });
+
+            // Silent background save to Photos if this replacement came from camera
+            if (index === 1) {
+              await ensurePhotosPermissionRequestedOnce();
+              silentlySaveToPhotosIfPermitted(saved.originalUri);
+            }
             
             router.replace(`/item/${item?.id}`);
           }
@@ -168,6 +174,33 @@ export default function ItemDetailScreen() {
         }
       }
     );
+  }
+
+  async function silentlySaveToPhotosIfPermitted(localUri: string) {
+    try {
+      const perm = await MediaLibrary.getPermissionsAsync();
+      if (!perm.granted) return; // Stay silent; do not prompt
+      const asset = await MediaLibrary.createAssetAsync(localUri);
+      try {
+        const albumName = 'Cusco Go';
+        let album = await MediaLibrary.getAlbumAsync(albumName);
+        if (!album) {
+          album = await MediaLibrary.createAlbumAsync(albumName, asset, false);
+        } else {
+          await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+        }
+      } catch {}
+    } catch {}
+  }
+
+  async function ensurePhotosPermissionRequestedOnce() {
+    try {
+      const perm = await MediaLibrary.getPermissionsAsync();
+      if (perm.granted) return;
+      if (perm.canAskAgain) {
+        await MediaLibrary.requestPermissionsAsync();
+      }
+    } catch {}
   }
 
   async function saveToPhotos() {
@@ -193,14 +226,15 @@ export default function ItemDetailScreen() {
       
       const result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
       if (!result.canceled) {
-        await handlePicked(result.assets[0].uri, item.id, item.title, result.assets[0].exif ?? null);
+        await ensurePhotosPermissionRequestedOnce();
+        await handlePicked(result.assets[0].uri, item.id, item.title, result.assets[0].exif ?? null, true);
       }
     } catch (e: any) {
       Alert.alert('Capture failed', String(e?.message ?? e));
     }
   }
 
-  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null) {
+  async function handlePicked(uri: string, itemId: string, title: string, pickedExif?: any | null, isFromCamera: boolean = false) {
     const stamp = Date.now();
     // Start EXIF parse immediately
     const exifGps = extractGpsFromExif(pickedExif);
@@ -223,6 +257,10 @@ export default function ItemDetailScreen() {
     
     // Navigate to the item's page to show the new capture
     router.replace(`/item/${itemId}`);
+
+    if (isFromCamera) {
+      silentlySaveToPhotosIfPermitted(saved.originalUri);
+    }
     
     // If no EXIF GPS, resolve a fresh fix in the background and update row
     if (!exifGps) {

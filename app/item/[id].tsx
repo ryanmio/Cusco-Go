@@ -64,10 +64,9 @@ export default function ItemDetailScreen() {
   const latestCapture = id ? getLatestCaptureForItem(id) : null;
   const menuButtonRef = useRef<View>(null);
   const colorScheme = useColorScheme();
+
   const CHIP = {
-    // Keep blur highlight but remove material differences
     effect: 'clear' as const,
-    // Consistent dark on-glass look across backgrounds
     tint: 'rgba(0,0,0,0.0)',
     bg: '#2B2222',
     textColor: '#fff',

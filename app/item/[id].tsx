@@ -64,7 +64,8 @@ export default function ItemDetailScreen() {
   const latestCapture = id ? getLatestCaptureForItem(id) : null;
   const menuButtonRef = useRef<View>(null);
   const colorScheme = useColorScheme();
-  const chipTextColor = (colorScheme === 'dark') ? '#fff' : '#111';
+  const chipTextColor = '#fff';
+  const chipTint = (colorScheme === 'dark') ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.14)';
 
   if (!item) {
     return (
@@ -286,12 +287,12 @@ export default function ItemDetailScreen() {
         />
         {latestCapture && (
           <>
-            <GlassSurface glassEffectStyle="regular" isInteractive style={styles.glassActionChip}>
+            <GlassSurface glassEffectStyle="regular" isInteractive style={styles.glassActionChip} tintColor={chipTint}>
               <Pressable style={styles.glassPressable} onPress={onViewPhoto}>
                 <Text style={[styles.viewButtonText, { color: chipTextColor }]}>View Full Size</Text>
               </Pressable>
             </GlassSurface>
-            <GlassSurface glassEffectStyle="regular" isInteractive style={[styles.glassActionChip, styles.glassMenuChip]}>
+            <GlassSurface glassEffectStyle="regular" isInteractive style={[styles.glassActionChip, styles.glassMenuChip]} tintColor={chipTint}>
               <Pressable ref={menuButtonRef} style={styles.glassPressable} onPress={onMenuPress}>
                 <Text style={[styles.viewButtonText, { color: chipTextColor }]}>⋯</Text>
               </Pressable>

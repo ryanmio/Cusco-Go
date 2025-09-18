@@ -48,6 +48,14 @@ export default function OnboardingScreen() {
     return { width: screenW, height: screenW / imgAR };
   }, [screenW, screenH, imgAR, patternSource?.width, patternSource?.height]);
 
+  // Consistent card height across pages, clamped for small/large screens
+  const cardHeight = useMemo(() => {
+    const proposed = screenH * 0.22; // ~42% of viewport height
+    const minH = 260;
+    const maxH = 460;
+    return Math.round(Math.max(minH, Math.min(maxH, proposed)));
+  }, [screenH]);
+
 
   const pages = useMemo(
     () => [
@@ -55,13 +63,13 @@ export default function OnboardingScreen() {
         title: 'Get Ready',
         emoji: '📷',
         body:
-          'There are 24 culturally or ecologically significant animals, plants, and ruins to document with your camera. Browse targets, tap one, and capture a photo.',
+          'There are 24 culturally or ecologically significant animals, plants, and ruins to document with your camera.',
       },
       {
-        title: 'Scoring and bonus zones',
+        title: 'Bonus zones',
         emoji: '🎯',
         body:
-          'Each unique capture earns points. Some places apply multipliers. Known and surprise bonus zones across Peru boost your score.',
+          ' Known and surprise bonus zones across Peru boost your score.',
       },
       {
         title: 'Offline by design',
@@ -127,7 +135,7 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-              <GlassSurface style={styles.card} glassEffectStyle={cardGlass.style} isInteractive tintColor={cardGlass.tint} useHaloFix>
+              <GlassSurface style={[styles.card, { height: cardHeight }]} glassEffectStyle={cardGlass.style} isInteractive tintColor={cardGlass.tint} useHaloFix>
               <Text style={[styles.emoji]}>{p.emoji}</Text>
                 <Text style={[styles.title, { color: '#fff' }]}>{p.title}</Text>
                 <Text style={[styles.body, { color: '#fff' }]}>{p.body}</Text>

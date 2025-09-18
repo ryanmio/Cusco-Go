@@ -135,8 +135,8 @@ export default function OnboardingScreen() {
         ))}
       </ScrollView>
 
-      <View style={styles.footer}>
-        <View style={styles.dots}>
+        <View style={styles.footer}>
+          <View style={styles.dots}>
           {pages.map((_, i) => (
             <View
               key={i}
@@ -147,15 +147,19 @@ export default function OnboardingScreen() {
             />
           ))}
         </View>
-        {index < pages.length - 1 ? (
-          <Pressable accessibilityRole="button" onPress={goNext} style={styles.cta}>
-            <Text style={styles.ctaText}>Next</Text>
-          </Pressable>
-        ) : (
-          <Pressable accessibilityRole="button" onPress={finish} style={styles.ctaPrimary}>
-            <Text style={styles.ctaPrimaryText}>Get started</Text>
-          </Pressable>
-        )}
+          {index < pages.length - 1 ? (
+            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+              <Pressable accessibilityRole="button" onPress={goNext} style={styles.pillPress}>
+                <Text style={[styles.pillText, { color: colors.text }]}>Next</Text>
+              </Pressable>
+            </GlassSurface>
+          ) : (
+            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+              <Pressable accessibilityRole="button" onPress={finish} style={styles.pillPress}>
+                <Text style={[styles.pillText, { color: colors.text }]}>Get started</Text>
+              </Pressable>
+            </GlassSurface>
+          )}
       </View>
       </Animated.View>
     </View>
@@ -180,21 +184,13 @@ const styles = StyleSheet.create({
   footer: { padding: 20, gap: 12 },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 8 },
   dot: { width: 8, height: 8, borderRadius: 999 },
-  cta: {
+  glassPill: {
     alignSelf: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 10,
     borderRadius: 999,
+    overflow: 'hidden',
   },
-  ctaText: { fontSize: 16, fontWeight: '700' },
-  ctaPrimary: {
-    alignSelf: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: '#2563eb',
-  },
-  ctaPrimaryText: { color: 'white', fontSize: 16, fontWeight: '700' },
+  pillPress: { paddingHorizontal: 20, paddingVertical: 10 },
+  pillText: { fontSize: 16, fontWeight: '800' },
 });
 
 

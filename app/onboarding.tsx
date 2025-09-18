@@ -16,10 +16,10 @@ export default function OnboardingScreen() {
   type PillCfg = GlassCfg & { textColor: string };
 
   // Tweak these four constants to tune onboarding appearance per theme
-  const CARD_LIGHT: GlassCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'clear' };
-  const CARD_DARK: GlassCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'clear' };
-  const PILL_LIGHT: PillCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'regular', textColor: '#fff' };
-  const PILL_DARK: PillCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'regular', textColor: '#fff' };
+  const CARD_LIGHT: GlassCfg = { tint: 'rgba(45, 18, 18, 0.71)', style: 'clear' };
+  const CARD_DARK: GlassCfg = { tint: 'rgba(26, 11, 11, 0.71)', style: 'clear' };
+  const PILL_LIGHT: PillCfg = { tint: 'rgba(130, 63, 63, 0.44)', style: 'clear', textColor: '#fff' };
+  const PILL_DARK: PillCfg = { tint: 'rgba(45, 18, 18, 0.71)', style: 'clear', textColor: '#fff' };
 
   const cardGlass = isDark ? CARD_DARK : CARD_LIGHT;
   const pillGlass = isDark ? PILL_DARK : PILL_LIGHT;

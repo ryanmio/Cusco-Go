@@ -34,8 +34,6 @@ export default function GlassSurface(props: GlassSurfaceProps) {
 const styles = StyleSheet.create({
   fallback: {
     backgroundColor: 'rgba(255,255,255,0.14)',
-    borderColor: 'rgba(255,255,255,0.22)',
-    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
 });

@@ -1,27 +1,49 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, useWindowDimensions, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, useWindowDimensions, Pressable, Image, Animated } from 'react-native';
 import { router } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { setSetting, ONBOARDED_KEY } from '@/lib/db';
+import GlassSurface from '@/components/GlassSurface';
 
 export default function OnboardingScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const isDark = (colorScheme ?? 'light') === 'dark';
   const subtle = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
-  const cardBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
   const hairline = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+  // Slightly stronger tint for a more pronounced liquid glass appearance
+  const glassTint = isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.18)';
 
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
   const [index, setIndex] = useState(0);
+  const [bgReady, setBgReady] = useState(false);
+  const reveal = useRef(new Animated.Value(0)).current;
+
+  // Background sizing to ensure image covers screen while staying centered
+  const { width: screenW, height: screenH } = useWindowDimensions();
+  const pattern = require('../assets/images/pattern.webp');
+  const patternSource = Image.resolveAssetSource(pattern);
+  const imgAR = (patternSource?.width && patternSource?.height) ? (patternSource.width / patternSource.height) : 1;
+  const screenAR = screenW / screenH;
+  const bgSize = useMemo(() => {
+    if (!patternSource?.width || !patternSource?.height) {
+      return { width: screenW, height: screenH };
+    }
+    if (imgAR > screenAR) {
+      // Image is wider than the screen: match height, expand width
+      return { width: screenH * imgAR, height: screenH };
+    }
+    // Image is taller than the screen: match width, expand height
+    return { width: screenW, height: screenW / imgAR };
+  }, [screenW, screenH, imgAR, patternSource?.width, patternSource?.height]);
 
 
   const pages = useMemo(
     () => [
       {
-        title: 'Photo scavenger hunt',
+        title: 'Get Ready',
         emoji: '📷',
         body:
           'There are 24 culturally or ecologically significant animals, plants, and ruins to document with your camera. Browse targets, tap one, and capture a photo.',
@@ -64,7 +86,25 @@ export default function OnboardingScreen() {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>      
+    <View style={[styles.container, { backgroundColor: colors.background }]}>     
+      {/* Fade-in layer to avoid flash */}
+      <Animated.View style={[StyleSheet.absoluteFillObject as any, { opacity: bgReady ? reveal : 0 }]}> 
+        {/* Background pattern to showcase Liquid Glass */}
+        <View style={styles.bgWrap} pointerEvents="none">
+          <Image
+            source={pattern}
+            style={{ width: bgSize.width, height: bgSize.height }}
+            resizeMode="cover"
+            fadeDuration={0}
+            blurRadius={0}
+            onLoadEnd={() => {
+              if (!bgReady) {
+                setBgReady(true);
+                Animated.timing(reveal, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+              }
+            }}
+          /> 
+        </View>
       <View style={styles.header}>
         <Pressable
           accessibilityRole="button"
@@ -86,11 +126,11 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-            <View style={[styles.card, { backgroundColor: cardBg, borderColor: hairline }]}>              
+            <GlassSurface style={styles.card} glassEffectStyle="regular" tintColor={glassTint}>
               <Text style={[styles.emoji]}>{p.emoji}</Text>
               <Text style={[styles.title, { color: colors.text }]}>{p.title}</Text>
               <Text style={[styles.body, { color: colors.text }]}>{p.body}</Text>
-            </View>
+            </GlassSurface>
           </View>
         ))}
       </ScrollView>
@@ -117,20 +157,22 @@ export default function OnboardingScreen() {
           </Pressable>
         )}
       </View>
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  bgWrap: { ...StyleSheet.absoluteFillObject as any, alignItems: 'center', justifyContent: 'center' },
   header: { height: 56, alignItems: 'flex-end', justifyContent: 'center' },
   skip: { paddingHorizontal: 16, paddingVertical: 8 },
   skipText: { fontSize: 15 },
   page: { flex: 1, paddingHorizontal: 20, justifyContent: 'center' },
   card: {
-    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 16,
     padding: 18,
+    overflow: 'hidden',
   },
   emoji: { fontSize: 42, marginBottom: 8, textAlign: 'center' },
   title: { fontSize: 22, fontWeight: '800', textAlign: 'center', marginBottom: 8 },

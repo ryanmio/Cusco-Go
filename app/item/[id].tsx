@@ -11,6 +11,7 @@ import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission 
 import { removeFileIfExists } from '@/lib/files';
 import GlassSurface from '@/components/GlassSurface';
 import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 // Extract photo taken date from EXIF data
 function extractPhotoDateFromExif(exif: any | null): number | null {
@@ -62,6 +63,8 @@ export default function ItemDetailScreen() {
   const item = HUNT_ITEMS.find(i => i.id === id);
   const latestCapture = id ? getLatestCaptureForItem(id) : null;
   const menuButtonRef = useRef<View>(null);
+  const colorScheme = useColorScheme();
+  const chipTextColor = (colorScheme === 'dark') ? '#fff' : '#111';
 
   if (!item) {
     return (
@@ -285,12 +288,12 @@ export default function ItemDetailScreen() {
           <>
             <GlassSurface glassEffectStyle="regular" isInteractive style={styles.glassActionChip}>
               <Pressable style={styles.glassPressable} onPress={onViewPhoto}>
-                <Text style={styles.viewButtonText}>View Full Size</Text>
+                <Text style={[styles.viewButtonText, { color: chipTextColor }]}>View Full Size</Text>
               </Pressable>
             </GlassSurface>
             <GlassSurface glassEffectStyle="regular" isInteractive style={[styles.glassActionChip, styles.glassMenuChip]}>
               <Pressable ref={menuButtonRef} style={styles.glassPressable} onPress={onMenuPress}>
-                <Text style={styles.viewButtonText}>⋯</Text>
+                <Text style={[styles.viewButtonText, { color: chipTextColor }]}>⋯</Text>
               </Pressable>
             </GlassSurface>
           </>

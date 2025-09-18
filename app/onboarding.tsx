@@ -69,7 +69,7 @@ export default function OnboardingScreen() {
         title: 'Bonus zones',
         emoji: '🎯',
         body:
-          ' Known and surprise bonus zones across Peru boost your score.',
+          'Bonus zones across Peru boost your score. Some are mapped, some are surprises.',
       },
       {
         title: 'Offline by design',
@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     overflow: 'hidden',
+    justifyContent: 'center',
   },
   emoji: { fontSize: 42, marginBottom: 8, textAlign: 'center' },
   title: { fontSize: 22, fontWeight: '800', textAlign: 'center', marginBottom: 8 },

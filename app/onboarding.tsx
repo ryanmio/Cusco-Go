@@ -11,8 +11,6 @@ export default function OnboardingScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const isDark = (colorScheme ?? 'light') === 'dark';
   const subtle = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
-  const hairline = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
-  // Use a subtle dark tint for both pill and cards so they match exactly
   const glassTint = isDark ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0,0,0,0.18)';
 
   const { width } = useWindowDimensions();
@@ -105,16 +103,8 @@ export default function OnboardingScreen() {
             }}
           /> 
         </View>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Skip onboarding"
-          onPress={finish}
-          style={({ pressed }) => [styles.skip, { opacity: pressed ? 0.6 : 0.9 }]}
-        >
-          <Text style={[styles.skipText, { color: subtle }]}>Skip</Text>
-        </Pressable>
-      </View>
+      {/* Spacer to preserve layout after removing Skip */}
+      <View style={styles.header} />
 
         <ScrollView
         ref={scrollRef}

@@ -72,8 +72,9 @@ Adjust the card's padding or `tintColor` directly on the `GlassSurface` style in
 2) Prefer `glassEffectStyle="regular"` and use `tintColor` for subtle density instead of borders.
 3) Keep the glass as the immediate wrapper (avoid extra parent wrappers that can flatten the backdrop).
 4) **Avoid custom borders and shadows** - they create non-native outlines that fight the liquid glass effect.
-5) Use `tintColor` for definition: `rgba(255,255,255,0.10-0.16)` for light mode, `rgba(255,255,255,0.08-0.14)` for dark mode.
-6) If overlaying other content, absolutely position and (optionally) set `pointerEvents="none"` so interactions pass through.
+5) **iOS blur halo fix**: If you see a 1px light outline around rounded glass cards on iOS, pass `useHaloFix={true}` to `GlassSurface` to render the blur as a background layer instead of applying styles directly to `GlassView`. This disables the native interactive highlight but eliminates the halo.
+6) Use `tintColor` for definition: `rgba(255,255,255,0.10-0.16)` for light mode, `rgba(255,255,255,0.08-0.14)` for dark mode.
+7) If overlaying other content, absolutely position and (optionally) set `pointerEvents="none"` so interactions pass through.
 
 Example:
 

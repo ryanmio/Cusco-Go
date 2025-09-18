@@ -32,7 +32,7 @@ export default function OnboardingScreen() {
 
   // Background sizing to ensure image covers screen while staying centered
   const { width: screenW, height: screenH } = useWindowDimensions();
-  const pattern = require('../assets/images/pattern.webp');
+  const pattern = require('../assets/images/background.webp');
   const patternSource = Image.resolveAssetSource(pattern);
   const imgAR = (patternSource?.width && patternSource?.height) ? (patternSource.width / patternSource.height) : 1;
   const screenAR = screenW / screenH;
@@ -69,13 +69,13 @@ export default function OnboardingScreen() {
         title: 'Bonus zones',
         emoji: '🎯',
         body:
-          'Bonus zones across Peru boost your score. Some are mapped, some are surprises.',
+          'Bonus zones across Peru boost your score. Some are visibile in the map, and some are surprises.',
       },
       {
         title: 'Offline by design',
         emoji: '📴',
         body:
-          'Works without internet. Your captures are saved at full resolution to your device. Compete with friends by sharing your total.',
+          'Works without internet. Your captures and scores are saved at full-resolution to your device.',
       },
     ],
     []

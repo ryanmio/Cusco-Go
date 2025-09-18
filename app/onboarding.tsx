@@ -116,7 +116,7 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-              <GlassSurface style={styles.card} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+            <GlassSurface style={styles.card} glassEffectStyle="clear" isInteractive tintColor={glassTint}>
               <Text style={[styles.emoji]}>{p.emoji}</Text>
                 <Text style={[styles.title, { color: '#fff' }]}>{p.title}</Text>
                 <Text style={[styles.body, { color: '#fff' }]}>{p.body}</Text>
@@ -135,13 +135,13 @@ export default function OnboardingScreen() {
             ))}
           </View>
           {index < pages.length - 1 ? (
-            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle="clear" isInteractive tintColor={glassTint}>
               <Pressable accessibilityRole="button" onPress={goNext} style={styles.pillPress}>
                 <Text style={[styles.pillText, { color: '#fff' }]}>Next</Text>
               </Pressable>
             </GlassSurface>
           ) : (
-            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle="clear" isInteractive tintColor={glassTint}>
               <Pressable accessibilityRole="button" onPress={finish} style={styles.pillPress}>
                 <Text style={[styles.pillText, { color: '#fff' }]}>Get started</Text>
               </Pressable>

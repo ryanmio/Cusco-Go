@@ -35,7 +35,7 @@ export default function GlassSurface(props: GlassSurfaceProps) {
         {!isDark && (
           <View
             pointerEvents="none"
-            style={[StyleSheet.absoluteFillObject as any, { backgroundColor: 'rgba(0,0,0,0.18)' }]}
+            style={[StyleSheet.absoluteFillObject as any, { backgroundColor: 'rgba(0,0,0,0.28)' }]}
           />
         )}
         <View pointerEvents="box-none">

@@ -11,8 +11,8 @@ export default function OnboardingScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const isDark = (colorScheme ?? 'light') === 'dark';
   const subtle = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
-  // Make light mode visually match dark by using a slightly stronger tint only in light
-  const glassTint = isDark ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0,0,0,0.28)';
+  // Use same tint value for both modes; GlassSurface will compensate in light mode
+  const glassTint = 'rgba(0, 0, 0, 0.18)';
 
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);

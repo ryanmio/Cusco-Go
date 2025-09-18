@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export type GlassSurfaceProps = {
   style?: StyleProp<ViewStyle>;
@@ -15,6 +16,8 @@ export default function GlassSurface(props: GlassSurfaceProps) {
   const { style, glassEffectStyle = 'regular', isInteractive = false, tintColor, children, fallbackStyle } = props;
 
   const canUseLiquidGlass = Platform.OS === 'ios' && isLiquidGlassAvailable();
+  const colorScheme = useColorScheme();
+  const isDark = (colorScheme ?? 'light') === 'dark';
 
   if (canUseLiquidGlass) {
     // Render the glass as a background layer. Apply corner radius and clipping
@@ -29,6 +32,12 @@ export default function GlassSurface(props: GlassSurfaceProps) {
           isInteractive={isInteractive}
           tintColor={tintColor}
         />
+        {!isDark && (
+          <View
+            pointerEvents="none"
+            style={[StyleSheet.absoluteFillObject as any, { backgroundColor: 'rgba(0,0,0,0.18)' }]}
+          />
+        )}
         <View pointerEvents="box-none">
           {children}
         </View>

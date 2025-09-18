@@ -24,7 +24,7 @@ export default function GlassSurface(props: GlassSurfaceProps) {
       <View style={[styles.wrapper, style]}>
         <GlassView
           pointerEvents="none"
-          style={StyleSheet.absoluteFillObject as any}
+          style={[StyleSheet.absoluteFillObject as any, { top: -1, left: -1, right: -1, bottom: -1 }]}
           glassEffectStyle={glassEffectStyle}
           isInteractive={isInteractive}
           tintColor={tintColor}

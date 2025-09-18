@@ -12,8 +12,8 @@ export default function OnboardingScreen() {
   const isDark = (colorScheme ?? 'light') === 'dark';
   const subtle = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
   const hairline = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
-  // Slightly stronger tint for a more pronounced liquid glass appearance
-  const glassTint = isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.18)';
+  // Use a subtle dark tint for both pill and cards so they match exactly
+  const glassTint = isDark ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0,0,0,0.18)';
 
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
@@ -116,7 +116,7 @@ export default function OnboardingScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
+        <ScrollView
         ref={scrollRef}
         horizontal
         pagingEnabled
@@ -126,10 +126,10 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-            <GlassSurface style={styles.card} glassEffectStyle="regular" tintColor={glassTint}>
+              <GlassSurface style={styles.card} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
               <Text style={[styles.emoji]}>{p.emoji}</Text>
-              <Text style={[styles.title, { color: colors.text }]}>{p.title}</Text>
-              <Text style={[styles.body, { color: colors.text }]}>{p.body}</Text>
+                <Text style={[styles.title, { color: '#fff' }]}>{p.title}</Text>
+                <Text style={[styles.body, { color: '#fff' }]}>{p.body}</Text>
             </GlassSurface>
           </View>
         ))}
@@ -137,26 +137,23 @@ export default function OnboardingScreen() {
 
         <View style={styles.footer}>
           <View style={styles.dots}>
-          {pages.map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.dot,
-                { backgroundColor: i === index ? '#2563eb' : hairline },
-              ]}
-            />
-          ))}
-        </View>
+            {pages.map((_, i) => (
+              <View
+                key={i}
+                style={[styles.dot, i === index ? styles.dotActive : styles.dotInactive]}
+              />
+            ))}
+          </View>
           {index < pages.length - 1 ? (
             <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
               <Pressable accessibilityRole="button" onPress={goNext} style={styles.pillPress}>
-                <Text style={[styles.pillText, { color: colors.text }]}>Next</Text>
+                <Text style={[styles.pillText, { color: '#fff' }]}>Next</Text>
               </Pressable>
             </GlassSurface>
           ) : (
             <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
               <Pressable accessibilityRole="button" onPress={finish} style={styles.pillPress}>
-                <Text style={[styles.pillText, { color: colors.text }]}>Get started</Text>
+                <Text style={[styles.pillText, { color: '#fff' }]}>Get started</Text>
               </Pressable>
             </GlassSurface>
           )}
@@ -182,12 +179,15 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '800', textAlign: 'center', marginBottom: 8 },
   body: { fontSize: 16, lineHeight: 22, textAlign: 'center' },
   footer: { padding: 20, gap: 12 },
-  dots: { flexDirection: 'row', justifyContent: 'center', gap: 8 },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 10 },
   dot: { width: 8, height: 8, borderRadius: 999 },
+  dotActive: { width: 10, height: 10, backgroundColor: '#2563eb' },
+  dotInactive: { backgroundColor: 'rgba(255,255,255,0.35)' },
   glassPill: {
     alignSelf: 'center',
     borderRadius: 999,
     overflow: 'hidden',
+    marginBottom: 12,
   },
   pillPress: { paddingHorizontal: 20, paddingVertical: 10 },
   pillText: { fontSize: 16, fontWeight: '800' },

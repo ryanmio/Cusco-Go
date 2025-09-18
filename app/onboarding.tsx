@@ -11,7 +11,8 @@ export default function OnboardingScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const isDark = (colorScheme ?? 'light') === 'dark';
   const subtle = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
-  const glassTint = isDark ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0,0,0,0.18)';
+  // Make light mode visually match dark by using a slightly stronger tint only in light
+  const glassTint = isDark ? 'rgba(0, 0, 0, 0.18)' : 'rgba(0,0,0,0.28)';
 
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
@@ -116,7 +117,7 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-            <GlassSurface style={styles.card} glassEffectStyle="clear" isInteractive tintColor={glassTint}>
+              <GlassSurface style={styles.card} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
               <Text style={[styles.emoji]}>{p.emoji}</Text>
                 <Text style={[styles.title, { color: '#fff' }]}>{p.title}</Text>
                 <Text style={[styles.body, { color: '#fff' }]}>{p.body}</Text>
@@ -135,13 +136,13 @@ export default function OnboardingScreen() {
             ))}
           </View>
           {index < pages.length - 1 ? (
-            <GlassSurface style={styles.glassPill} glassEffectStyle="clear" isInteractive tintColor={glassTint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
               <Pressable accessibilityRole="button" onPress={goNext} style={styles.pillPress}>
                 <Text style={[styles.pillText, { color: '#fff' }]}>Next</Text>
               </Pressable>
             </GlassSurface>
           ) : (
-            <GlassSurface style={styles.glassPill} glassEffectStyle="clear" isInteractive tintColor={glassTint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
               <Pressable accessibilityRole="button" onPress={finish} style={styles.pillPress}>
                 <Text style={[styles.pillText, { color: '#fff' }]}>Get started</Text>
               </Pressable>

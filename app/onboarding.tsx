@@ -127,7 +127,7 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-              <GlassSurface style={styles.card} glassEffectStyle={cardGlass.style} isInteractive tintColor={cardGlass.tint}>
+              <GlassSurface style={styles.card} glassEffectStyle={cardGlass.style} isInteractive tintColor={cardGlass.tint} useHaloFix>
               <Text style={[styles.emoji]}>{p.emoji}</Text>
                 <Text style={[styles.title, { color: '#fff' }]}>{p.title}</Text>
                 <Text style={[styles.body, { color: '#fff' }]}>{p.body}</Text>
@@ -146,13 +146,13 @@ export default function OnboardingScreen() {
             ))}
           </View>
           {index < pages.length - 1 ? (
-            <GlassSurface style={styles.glassPill} glassEffectStyle={pillGlass.style} isInteractive tintColor={pillGlass.tint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle={pillGlass.style} isInteractive tintColor={pillGlass.tint} useHaloFix>
               <Pressable accessibilityRole="button" onPress={goNext} style={styles.pillPress}>
                 <Text style={[styles.pillText, { color: pillGlass.textColor }]}>Next</Text>
               </Pressable>
             </GlassSurface>
           ) : (
-            <GlassSurface style={styles.glassPill} glassEffectStyle={pillGlass.style} isInteractive tintColor={pillGlass.tint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle={pillGlass.style} isInteractive tintColor={pillGlass.tint} useHaloFix>
               <Pressable accessibilityRole="button" onPress={finish} style={styles.pillPress}>
                 <Text style={[styles.pillText, { color: pillGlass.textColor }]}>Get started</Text>
               </Pressable>

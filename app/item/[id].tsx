@@ -64,8 +64,14 @@ export default function ItemDetailScreen() {
   const latestCapture = id ? getLatestCaptureForItem(id) : null;
   const menuButtonRef = useRef<View>(null);
   const colorScheme = useColorScheme();
-  const chipTextColor = '#fff';
-  const chipTint = (colorScheme === 'dark') ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.14)';
+  const CHIP = {
+    // Keep blur highlight but remove material differences
+    effect: 'clear' as const,
+    // Consistent dark on-glass look across backgrounds
+    tint: 'rgba(0,0,0,0.0)',
+    bg: '#2B2222',
+    textColor: '#fff',
+  };
 
   if (!item) {
     return (
@@ -287,28 +293,27 @@ export default function ItemDetailScreen() {
         />
         {latestCapture && (
           <>
-            <GlassSurface glassEffectStyle="regular" isInteractive style={styles.glassActionChip} tintColor={chipTint}>
+            <GlassSurface glassEffectStyle={CHIP.effect} isInteractive style={[styles.glassActionChip, { backgroundColor: CHIP.bg }]} tintColor={CHIP.tint}>
               <Pressable style={styles.glassPressable} onPress={onViewPhoto}>
-                <Text style={[styles.viewButtonText, { color: chipTextColor }]}>View Full Size</Text>
+                <Text style={[styles.viewButtonText, { color: CHIP.textColor }]}>View Full Size</Text>
               </Pressable>
             </GlassSurface>
-            <GlassSurface glassEffectStyle="regular" isInteractive style={[styles.glassActionChip, styles.glassMenuChip]} tintColor={chipTint}>
+            <GlassSurface glassEffectStyle={CHIP.effect} isInteractive style={[styles.glassActionChip, styles.glassMenuChip, { backgroundColor: CHIP.bg }]} tintColor={CHIP.tint}>
               <Pressable ref={menuButtonRef} style={styles.glassPressable} onPress={onMenuPress}>
-                <Text style={[styles.viewButtonText, { color: chipTextColor }]}>⋯</Text>
+                <Text style={[styles.viewButtonText, { color: CHIP.textColor }]}>⋯</Text>
               </Pressable>
             </GlassSurface>
           </>
         )}
         {!latestCapture && (
           <GlassSurface
-            glassEffectStyle="regular"
+            glassEffectStyle={CHIP.effect}
             isInteractive
-            tintColor={Colors.dark.tint}
-            style={styles.glassActionChip}
-            fallbackStyle={styles.glassBlueFallback}
+            tintColor={CHIP.tint}
+            style={[styles.glassActionChip, { backgroundColor: CHIP.bg } ]}
           >
             <Pressable style={styles.glassPressable} onPress={onCapture}>
-              <Text style={styles.viewButtonText}>Capture Photo</Text>
+              <Text style={[styles.viewButtonText, { color: CHIP.textColor }]}>Capture Photo</Text>
             </Pressable>
           </GlassSurface>
         )}

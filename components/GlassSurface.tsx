@@ -17,10 +17,22 @@ export default function GlassSurface(props: GlassSurfaceProps) {
   const canUseLiquidGlass = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
   if (canUseLiquidGlass) {
+    // Render the glass as a background layer. Apply corner radius and clipping
+    // to the wrapper view instead of the GlassView itself to avoid the thin
+    // halo that can appear around rounded blur views on iOS.
     return (
-      <GlassView style={style} glassEffectStyle={glassEffectStyle} isInteractive={isInteractive} tintColor={tintColor}>
-        {children}
-      </GlassView>
+      <View style={[styles.wrapper, style]}>
+        <GlassView
+          pointerEvents="none"
+          style={StyleSheet.absoluteFillObject as any}
+          glassEffectStyle={glassEffectStyle}
+          isInteractive={isInteractive}
+          tintColor={tintColor}
+        />
+        <View pointerEvents="box-none">
+          {children}
+        </View>
+      </View>
     );
   }
 
@@ -32,6 +44,9 @@ export default function GlassSurface(props: GlassSurfaceProps) {
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    overflow: 'hidden',
+  },
   fallback: {
     backgroundColor: 'rgba(255,255,255,0.14)',
     overflow: 'hidden',

@@ -11,8 +11,18 @@ export default function OnboardingScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const isDark = (colorScheme ?? 'light') === 'dark';
   const subtle = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
-  // Use same tint value for both modes; GlassSurface will compensate in light mode
-  const glassTint = 'rgba(0, 0, 0, 0.18)';
+  // Configurable glass settings per theme
+  type GlassCfg = { tint: string; style: 'regular' | 'clear' };
+  type PillCfg = GlassCfg & { textColor: string };
+
+  // Tweak these four constants to tune onboarding appearance per theme
+  const CARD_LIGHT: GlassCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'clear' };
+  const CARD_DARK: GlassCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'clear' };
+  const PILL_LIGHT: PillCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'regular', textColor: '#fff' };
+  const PILL_DARK: PillCfg = { tint: 'rgba(45, 18, 18, 0.65)', style: 'regular', textColor: '#fff' };
+
+  const cardGlass = isDark ? CARD_DARK : CARD_LIGHT;
+  const pillGlass = isDark ? PILL_DARK : PILL_LIGHT;
 
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
@@ -117,7 +127,7 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-              <GlassSurface style={styles.card} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+              <GlassSurface style={styles.card} glassEffectStyle={cardGlass.style} isInteractive tintColor={cardGlass.tint}>
               <Text style={[styles.emoji]}>{p.emoji}</Text>
                 <Text style={[styles.title, { color: '#fff' }]}>{p.title}</Text>
                 <Text style={[styles.body, { color: '#fff' }]}>{p.body}</Text>
@@ -136,15 +146,15 @@ export default function OnboardingScreen() {
             ))}
           </View>
           {index < pages.length - 1 ? (
-            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle={pillGlass.style} isInteractive tintColor={pillGlass.tint}>
               <Pressable accessibilityRole="button" onPress={goNext} style={styles.pillPress}>
-                <Text style={[styles.pillText, { color: '#fff' }]}>Next</Text>
+                <Text style={[styles.pillText, { color: pillGlass.textColor }]}>Next</Text>
               </Pressable>
             </GlassSurface>
           ) : (
-            <GlassSurface style={styles.glassPill} glassEffectStyle="regular" isInteractive tintColor={glassTint}>
+            <GlassSurface style={styles.glassPill} glassEffectStyle={pillGlass.style} isInteractive tintColor={pillGlass.tint}>
               <Pressable accessibilityRole="button" onPress={finish} style={styles.pillPress}>
-                <Text style={[styles.pillText, { color: '#fff' }]}>Get started</Text>
+                <Text style={[styles.pillText, { color: pillGlass.textColor }]}>Get started</Text>
               </Pressable>
             </GlassSurface>
           )}

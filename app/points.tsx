@@ -115,12 +115,12 @@ export default function PointsScreen() {
           }
         />
       )}
-      <Animated.View style={[styles.glassWrapper, { height: cardHeight }]} pointerEvents="none">
+      <Animated.View style={[styles.glassWrapper, { height: cardHeight }]} pointerEvents="box-none">
         <GlassSurface
           style={[styles.glassCard]}
-          glassEffectStyle="regular"
+          glassEffectStyle="clear"
           isInteractive
-          tintColor={(colorScheme === 'dark') ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.16)'}
+          tintColor={(colorScheme === 'dark') ? 'rgba(255, 255, 255, 0)' : 'rgba(255,255,255,0.16)'}
           fallbackStyle={{ backgroundColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.28)' }}
         >
           <Animated.View style={[styles.headerRow, { transform: [{ scale }] }]}> 

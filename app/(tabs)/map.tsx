@@ -269,32 +269,25 @@ export default function MapTab() {
         <View style={styles.captureCardWrap} pointerEvents="box-none">
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setSelectedCaptureId(null)} />
           <Animated.View
-            style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
+            style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], alignSelf: 'stretch' }}
             pointerEvents="box-none"
           >
-            <Pressable
-              onPress={() => {
-                const cap = captures.find(c => c.id === selectedCaptureId);
-                if (cap) router.push({ pathname: '/item/[id]', params: { id: cap.itemId } });
-              }}
-            >
+            <Pressable style={{ alignSelf: 'stretch' }} onPress={() => {
+              const cap = captures.find(c => c.id === selectedCaptureId);
+              if (cap) router.push({ pathname: '/item/[id]', params: { id: cap.itemId } });
+            }}>
               <GlassSurface
-                style={styles.captureGlass}
+                style={[styles.captureGlass, { marginHorizontal: 16 }]}
                 glassEffectStyle="regular"
                 isInteractive
                 tintColor={glassTint}
                 fallbackStyle={{ backgroundColor: fallbackGlass }}
               >
-                <Pressable onPress={() => {
-                  const cap = captures.find(c => c.id === selectedCaptureId);
-                  if (cap) router.push({ pathname: '/item/[id]', params: { id: cap.itemId } });
-                }}>
-                  <SelectedCaptureContent
+                <SelectedCaptureContent
                   capture={captures.find(c => c.id === selectedCaptureId) || null}
                   textColor={textColor}
                   onDetails={(itemId) => router.push({ pathname: '/item/[id]', params: { id: itemId } })}
-                  />
-                </Pressable>
+                />
               </GlassSurface>
             </Pressable>
           </Animated.View>
@@ -341,14 +334,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 96,
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   captureGlass: {
     borderRadius: 16,
     overflow: 'hidden',
     paddingHorizontal: 14,
     paddingVertical: 12,
-    marginHorizontal: 16,
+    alignSelf: 'stretch',
   },
 });
 

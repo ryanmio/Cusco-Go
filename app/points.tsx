@@ -44,7 +44,7 @@ export default function PointsScreen() {
     const allCaptures = listCaptures();
     const allBonuses = listAllBonuses();
 
-    // For each captured item, compute base and bonus from the latest capture bonuses (or sum across captures?)
+    // For each captured item, compute base and bonus from the latest capture bonuses
     // We will sum bonuses across all captures for that item to reward multiple biome captures.
     const itemIdToBonus = new Map<string, number>();
     for (const b of allBonuses) {

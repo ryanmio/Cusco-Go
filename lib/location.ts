@@ -20,7 +20,6 @@ export async function getSingleLocationOrNull() {
     });
     return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
   } catch (error) {
-    console.log('Location error:', error);
     return null;
   }
 }

@@ -33,7 +33,6 @@ export default function Viewer() {
         Alert.alert('Saved!', 'Photo saved to your Photos library.');
       }
     } catch (error) {
-      console.log('Save error:', error);
       Alert.alert('Save Failed', 'Could not save photo to Photos library.');
     }
   }
@@ -100,8 +99,6 @@ export default function Viewer() {
               source={{ uri: String(uri) }}
               style={styles.image}
               resizeMode="contain"
-              onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
-              onLoad={() => console.log('Image loaded successfully')}
             />
           </ScrollView>
         </View>

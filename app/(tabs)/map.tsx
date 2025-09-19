@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, Animated, Easing } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, Circle, MapPressEvent } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
+import { useRouter } from 'expo-router';
 import * as Network from 'expo-network';
 import { addCapturesListener, listCaptures, type CaptureRow, listBonusEventsForCapture } from '@/lib/db';
 import { HUNT_ITEMS } from '@/data/items';
@@ -13,6 +14,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export default function MapTab() {
+  const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -22,6 +24,8 @@ export default function MapTab() {
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
   const [selectedBiome, setSelectedBiome] = useState<CircleBiome | null>(null);
   const [selectedCaptureId, setSelectedCaptureId] = useState<number | null>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(12)).current;
   const meRef = useRef<{ latitude: number; longitude: number } | null>(null);
   const lastFixAtRef = useRef<number>(0);
   const mapRef = useRef<MapView | null>(null);
@@ -91,6 +95,9 @@ export default function MapTab() {
       .filter(r => r.latitude != null && r.longitude != null)
       .map(r => ({ id: r.id, latitude: r.latitude as number, longitude: r.longitude as number, title: r.title }));
     setPoints(spreadOverlappingPoints(raw));
+    // Reset animations when reloading
+    fadeAnim.setValue(0);
+    slideAnim.setValue(12);
   }
 
   // Slightly offset markers that share the exact same rounded coordinates to avoid stacking
@@ -150,6 +157,9 @@ export default function MapTab() {
       setSelectedBiome(inside[0].b);
       // Ensure only one card is visible at a time
       setSelectedCaptureId(null);
+      // Hide any item animation
+      fadeAnim.setValue(0);
+      slideAnim.setValue(12);
     } else {
       setSelectedBiome(null);
     }
@@ -222,6 +232,13 @@ export default function MapTab() {
               e.stopPropagation();
               setSelectedBiome(null);
               setSelectedCaptureId(p.id);
+              // Animate card in
+              fadeAnim.setValue(0);
+              slideAnim.setValue(12);
+              Animated.parallel([
+                Animated.timing(fadeAnim, { toValue: 1, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+                Animated.timing(slideAnim, { toValue: 0, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+              ]).start();
             }}
           >
             <MapPin label={p.title} />
@@ -251,15 +268,36 @@ export default function MapTab() {
       {selectedCaptureId != null ? (
         <View style={styles.captureCardWrap} pointerEvents="box-none">
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setSelectedCaptureId(null)} />
-          <GlassSurface
-            style={styles.captureGlass}
-            glassEffectStyle="regular"
-            isInteractive
-            tintColor={glassTint}
-            fallbackStyle={{ backgroundColor: fallbackGlass }}
+          <Animated.View
+            style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
+            pointerEvents="box-none"
           >
-            <SelectedCaptureContent capture={captures.find(c => c.id === selectedCaptureId) || null} textColor={textColor} />
-          </GlassSurface>
+            <Pressable
+              onPress={() => {
+                const cap = captures.find(c => c.id === selectedCaptureId);
+                if (cap) router.push({ pathname: '/item/[id]', params: { id: cap.itemId } });
+              }}
+            >
+              <GlassSurface
+                style={styles.captureGlass}
+                glassEffectStyle="regular"
+                isInteractive
+                tintColor={glassTint}
+                fallbackStyle={{ backgroundColor: fallbackGlass }}
+              >
+                <Pressable onPress={() => {
+                  const cap = captures.find(c => c.id === selectedCaptureId);
+                  if (cap) router.push({ pathname: '/item/[id]', params: { id: cap.itemId } });
+                }}>
+                  <SelectedCaptureContent
+                  capture={captures.find(c => c.id === selectedCaptureId) || null}
+                  textColor={textColor}
+                  onDetails={(itemId) => router.push({ pathname: '/item/[id]', params: { id: itemId } })}
+                  />
+                </Pressable>
+              </GlassSurface>
+            </Pressable>
+          </Animated.View>
         </View>
       ) : null}
     </View>
@@ -314,7 +352,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function SelectedCaptureContent({ capture, textColor }: { capture: CaptureRow | null; textColor: string }) {
+function SelectedCaptureContent({ capture, textColor, onDetails }: { capture: CaptureRow | null; textColor: string; onDetails: (itemId: string) => void }) {
   const [bonusTotal, setBonusTotal] = React.useState(0);
   useEffect(() => {
     if (!capture) { setBonusTotal(0); return; }
@@ -325,17 +363,16 @@ function SelectedCaptureContent({ capture, textColor }: { capture: CaptureRow | 
   const base = getBasePointsForItemId(capture.itemId);
   const total = base + bonusTotal;
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <Image source={{ uri: capture.thumbnailUri }} style={{ width: 64, height: 64, borderRadius: 12 }} />
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+      <Image source={{ uri: capture.thumbnailUri }} style={{ width: 72, height: 72, borderRadius: 14 }} />
       <View style={{ flex: 1 }}>
-        <Text style={{ color: textColor, fontSize: 16, fontWeight: '800' }} numberOfLines={1}>{capture.title}</Text>
-        <Text style={{ color: textColor, opacity: 0.85, marginTop: 2, fontWeight: '700' }}>+{base} base</Text>
-        {bonusTotal > 0 ? (
-          <Text style={{ color: textColor, opacity: 0.85, marginTop: 2, fontWeight: '700' }}>+{bonusTotal} bonus</Text>
-        ) : null}
-      </View>
-      <View style={{ alignItems: 'flex-end' }}>
-        <Text style={{ color: textColor, fontSize: 18, fontWeight: '900' }}>{total} pts</Text>
+        <Text style={{ color: textColor, fontSize: 17, fontWeight: '900' }} numberOfLines={1}>{capture.title}</Text>
+        <Text style={{ color: textColor, opacity: 0.9, marginTop: 4, fontWeight: '800' }}>{total} pts</Text>
+        <View style={{ flexDirection: 'row', marginTop: 8 }}>
+          <View style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.25)' }}>
+            <Text style={{ color: '#fff', fontWeight: '800' }}>Details</Text>
+          </View>
+        </View>
       </View>
     </View>
   );

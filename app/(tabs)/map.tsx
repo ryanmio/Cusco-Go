@@ -148,6 +148,8 @@ export default function MapTab() {
       // Pick highest multiplier; tie-breaker nearest
       inside.sort((a, b) => (b.b.multiplier - a.b.multiplier) || (a.d - b.d));
       setSelectedBiome(inside[0].b);
+      // Ensure only one card is visible at a time
+      setSelectedCaptureId(null);
     } else {
       setSelectedBiome(null);
     }

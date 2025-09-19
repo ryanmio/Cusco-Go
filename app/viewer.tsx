@@ -13,8 +13,6 @@ import { FullScreenActions } from '@/components/FullScreenActions';
 export default function Viewer() {
   const { uri } = useLocalSearchParams<{ uri: string }>();
 
-  console.log('Viewer URI:', uri);
-
   const insets = useSafeAreaInsets();
 
   useEffect(() => {

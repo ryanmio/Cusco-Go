@@ -5,7 +5,6 @@ import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { HUNT_ITEMS } from '@/data/items';
 import { getLatestCaptureForItem, deleteCapture } from '@/lib/db';
-import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { removeFileIfExists } from '@/lib/files';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { FlatList, Image, Pressable, StyleSheet, Text, View, Animated, Dimensions, ScrollView, RefreshControl } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, Animated, Dimensions, ScrollView, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { listCaptures, CaptureRow } from '@/lib/db';

@@ -38,8 +38,8 @@ export default function MapTab() {
   const maxMult = useMemo(() => circles.reduce((m, b) => Math.max(m, b.multiplier), 1), [circles]);
   function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
   function goldColor(multiplier: number, alpha = 1) {
-    const low = { r: 176, g: 137, b: 0 };   // #B08900 (duller)
-    const high = { r: 255, g: 209, b: 102 }; // #FFD166 (bright)
+    const low = { r: 176, g: 137, b: 0 };   // #B08900
+    const high = { r: 255, g: 209, b: 102 }; // #FFD166
     const t = Math.max(0, Math.min(1, (multiplier - 1) / Math.max(1e-6, (maxMult - 1))));
     const r = Math.round(lerp(low.r, high.r, t));
     const g = Math.round(lerp(low.g, high.g, t));

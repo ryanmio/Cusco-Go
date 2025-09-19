@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { ActionSheetIOS, Alert, FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent, Animated } from 'react-native';
+import { ActionSheetIOS, Alert, FlatList, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GlassSurface from '@/components/GlassSurface';
 import * as ImagePicker from 'expo-image-picker';

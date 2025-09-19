@@ -251,15 +251,20 @@ export default function MapTab() {
       {selectedBiome ? (
         <View style={styles.biomeCardWrap} pointerEvents="box-none" onStartShouldSetResponder={() => true} onResponderRelease={() => setSelectedBiome(null)}>
           <GlassSurface
-            style={styles.biomeGlass}
+            style={[styles.biomeGlass, { marginHorizontal: 16 }]}
             glassEffectStyle="regular"
             isInteractive
             tintColor={glassTint}
             fallbackStyle={{ backgroundColor: fallbackGlass }}
           >
-            <View style={styles.biomeContent}>
-              <Text style={[styles.biomeTitle, { color: textColor }]}>{selectedBiome.label}</Text>
-              <Text style={[styles.biomeSubtitle, { color: textColor }]}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.biomeTitle, { color: textColor }]} numberOfLines={1}>{selectedBiome.label}</Text>
+                <Text style={[styles.biomeSubtitle, { color: textColor }]}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
+                {Boolean((selectedBiome as any).description) ? (
+                  <Text style={{ color: textColor, opacity: 0.9, marginTop: 6 }} numberOfLines={3}>{(selectedBiome as any).description}</Text>
+                ) : null}
+              </View>
             </View>
           </GlassSurface>
         </View>

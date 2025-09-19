@@ -8,6 +8,7 @@ export type CircleBiome = {
   centerLng: number;
   radiusMeters: number;
   multiplier: number; // e.g., 1.5 means +50% bonus
+  description?: string; // optional short description from biomes.json
 };
 
 export type AltitudeBiome = {
@@ -17,6 +18,7 @@ export type AltitudeBiome = {
   minMeters?: number; // inclusive
   maxMeters?: number; // inclusive
   multiplier: number;
+  description?: string; // optional short description from biomes.json
 };
 
 export type Biome = CircleBiome | AltitudeBiome;

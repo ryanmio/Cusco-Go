@@ -60,7 +60,8 @@
     "centerLat": 38.864574043109855,
     "centerLng": -77.18481510075861,
     "radiusMeters": 500,
-    "multiplier": 1.2
+    "multiplier": 1.2,
+    "description": "this is a description of a biome"
   },
   {
     "id": "choquequirao",

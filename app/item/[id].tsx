@@ -11,6 +11,7 @@ import { removeFileIfExists } from '@/lib/files';
 import GlassSurface from '@/components/GlassSurface';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { evaluateAndRecordBiomeBonus } from '@/lib/biomeScoring';
 
 // Extract photo taken date from EXIF data
 function extractPhotoDateFromExif(exif: any | null): number | null {
@@ -158,7 +159,7 @@ export default function ItemDetailScreen() {
             // Update database
             deleteCapture(latestCapture.id);
             const { insertCapture } = await import('@/lib/db');
-            insertCapture({
+            const newId = insertCapture({
               itemId: item?.id || '',
               title: item?.title || '',
               originalUri: saved.originalUri,
@@ -168,6 +169,23 @@ export default function ItemDetailScreen() {
               latitude: loc?.latitude ?? null,
               longitude: loc?.longitude ?? null,
             });
+
+            // Award biome bonus for replacement capture if applicable
+            try {
+              const basePoints = Number(item?.difficulty ?? 0);
+              if (basePoints > 0) {
+                const lat = loc?.latitude ?? null;
+                const lon = loc?.longitude ?? null;
+                if (lat != null && lon != null) {
+                  await evaluateAndRecordBiomeBonus({
+                    captureId: newId,
+                    latitude: lat,
+                    longitude: lon,
+                    basePoints,
+                  });
+                }
+              }
+            } catch {}
 
             // Silent background save to Photos if this replacement came from camera
             if (index === 1) {
@@ -262,6 +280,19 @@ export default function ItemDetailScreen() {
       latitude: exifGps?.latitude ?? null,
       longitude: exifGps?.longitude ?? null,
     });
+
+    // Attempt to award biome bonus immediately if EXIF GPS exists
+    try {
+      const basePoints = (HUNT_ITEMS.find(i => i.id === itemId)?.difficulty) ?? 0;
+      if (basePoints > 0 && exifGps) {
+        await evaluateAndRecordBiomeBonus({
+          captureId: id,
+          latitude: exifGps.latitude,
+          longitude: exifGps.longitude,
+          basePoints,
+        });
+      }
+    } catch {}
     
     // Navigate to the item's page to show the new capture
     router.replace(`/item/${itemId}`);
@@ -270,12 +301,23 @@ export default function ItemDetailScreen() {
       silentlySaveToPhotosIfPermitted(saved.originalUri);
     }
     
-    // If no EXIF GPS, resolve a fresh fix in the background and update row
+    // If no EXIF GPS, resolve a fresh fix in the background and update row, then award bonus
     if (!exifGps) {
       getSingleLocationOrNull().then((loc) => {
         if (loc) {
           const { updateCaptureLocation } = require('@/lib/db');
           updateCaptureLocation(id, loc.latitude, loc.longitude);
+          try {
+            const basePoints = (HUNT_ITEMS.find(i => i.id === itemId)?.difficulty) ?? 0;
+            if (basePoints > 0) {
+              evaluateAndRecordBiomeBonus({
+                captureId: id,
+                latitude: loc.latitude,
+                longitude: loc.longitude,
+                basePoints,
+              });
+            }
+          } catch {}
         }
       });
     }

@@ -272,10 +272,7 @@ export default function MapTab() {
             style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], alignSelf: 'stretch' }}
             pointerEvents="box-none"
           >
-            <Pressable style={{ alignSelf: 'stretch' }} onPress={() => {
-              const cap = captures.find(c => c.id === selectedCaptureId);
-              if (cap) router.push({ pathname: '/item/[id]', params: { id: cap.itemId } });
-            }}>
+            <View style={{ alignSelf: 'stretch' }}>
               <GlassSurface
                 style={[styles.captureGlass, { marginHorizontal: 16 }]}
                 glassEffectStyle="regular"
@@ -289,7 +286,7 @@ export default function MapTab() {
                   onDetails={(itemId) => router.push({ pathname: '/item/[id]', params: { id: itemId } })}
                 />
               </GlassSurface>
-            </Pressable>
+            </View>
           </Animated.View>
         </View>
       ) : null}
@@ -362,11 +359,14 @@ function SelectedCaptureContent({ capture, textColor, onDetails }: { capture: Ca
         <Text style={{ color: textColor, fontSize: 17, fontWeight: '900' }} numberOfLines={1}>{capture.title}</Text>
         <Text style={{ color: textColor, opacity: 0.9, marginTop: 4, fontWeight: '800' }}>{total} pts</Text>
         <View style={{ flexDirection: 'row', marginTop: 8 }}>
-          <View style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.25)' }}>
-            <Text style={{ color: '#fff', fontWeight: '800' }}>Details</Text>
-          </View>
+          <Pressable onPress={() => onDetails(capture.itemId)} hitSlop={6}>
+            <View style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.25)' }}>
+              <Text style={{ color: '#fff', fontWeight: '800' }}>Details</Text>
+            </View>
+          </Pressable>
         </View>
       </View>
+      <Text style={{ color: textColor, opacity: 0.8, fontSize: 20, fontWeight: '900', paddingHorizontal: 6 }}>›</Text>
     </View>
   );
 }

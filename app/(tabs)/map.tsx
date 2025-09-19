@@ -248,25 +248,35 @@ export default function MapTab() {
       <View style={styles.zoomHint}>
         <Text style={styles.zoomHintText}>Pinch to zoom • Drag to pan</Text>
       </View>
-      {selectedBiome ? (
-        <View style={styles.biomeCardWrap} pointerEvents="box-none" onStartShouldSetResponder={() => true} onResponderRelease={() => setSelectedBiome(null)}>
-          <GlassSurface
-            style={[styles.biomeGlass, { marginHorizontal: 16, alignSelf: 'stretch' }]}
-            glassEffectStyle="regular"
-            isInteractive
-            tintColor={glassTint}
-            fallbackStyle={{ backgroundColor: fallbackGlass }}
-          >
-            <View>
-              <Text style={[styles.biomeTitle, { color: textColor }]} numberOfLines={1}>{selectedBiome.label}</Text>
-              <Text style={[styles.biomeSubtitle, { color: textColor }]}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
-              {Boolean((selectedBiome as any).description) ? (
-                <Text style={{ color: textColor, opacity: 0.9, marginTop: 6 }} numberOfLines={3}>{(selectedBiome as any).description}</Text>
-              ) : null}
-            </View>
-          </GlassSurface>
-        </View>
-      ) : null}
+      {selectedBiome ? (() => {
+        const mult = selectedBiome.multiplier;
+        const pct = Math.round((mult - 1) * 100);
+        const badgeBg = goldColor(mult, 0.9);
+        return (
+          <View style={styles.biomeCardWrap} pointerEvents="box-none" onStartShouldSetResponder={() => true} onResponderRelease={() => setSelectedBiome(null)}>
+            <GlassSurface
+              style={[styles.biomeGlass, { marginHorizontal: 16, alignSelf: 'stretch' }]}
+              glassEffectStyle="regular"
+              isInteractive
+              tintColor={glassTint}
+              fallbackStyle={{ backgroundColor: fallbackGlass }}
+            >
+              <View style={{ alignItems: 'flex-start' }}>
+                <Text style={[styles.biomeEyebrow, { color: textColor }]}>Bonus Zone</Text>
+                <Text style={[styles.biomeTitle, { color: textColor }]} numberOfLines={2}>{selectedBiome.label}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                  <View style={[styles.multBadge, { backgroundColor: badgeBg }]}>
+                    <Text style={styles.multBadgeText}>+{pct}% bonus</Text>
+                  </View>
+                </View>
+                {Boolean((selectedBiome as any).description) ? (
+                  <Text style={[styles.biomeDesc, { color: textColor }]} numberOfLines={3}>{(selectedBiome as any).description}</Text>
+                ) : null}
+              </View>
+            </GlassSurface>
+          </View>
+        );
+      })() : null}
 
       {selectedCaptureId != null ? (
         <View style={styles.captureCardWrap} pointerEvents="box-none">
@@ -329,8 +339,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   biomeContent: { alignItems: 'center' },
-  biomeTitle: { fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
-  biomeSubtitle: { fontSize: 14, fontWeight: '800', opacity: 0.95, textAlign: 'center' },
+  biomeEyebrow: { fontSize: 12, fontWeight: '800', opacity: 0.75, marginBottom: 2 },
+  biomeTitle: { fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'left' },
+  biomeSubtitle: { fontSize: 14, fontWeight: '800', opacity: 0.95, textAlign: 'left' },
+  biomeDesc: { fontSize: 13, opacity: 0.9, marginTop: 8, textAlign: 'left' },
+  multBadge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  multBadgeText: { color: '#000', fontWeight: '900' },
   captureCardWrap: {
     position: 'absolute',
     left: 0,

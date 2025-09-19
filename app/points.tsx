@@ -120,7 +120,7 @@ export default function PointsScreen() {
           style={[styles.glassCard]}
           glassEffectStyle="clear"
           isInteractive
-          tintColor={(colorScheme === 'dark') ? 'rgba(255, 255, 255, 0)' : 'rgba(255,255,255,0.16)'}
+          tintColor={(colorScheme === 'dark') ? 'rgba(255, 255, 255, 0)' : 'rgba(255, 255, 255, 0.38)'}
           fallbackStyle={{ backgroundColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.28)' }}
         >
           <Animated.View style={[styles.headerRow, { transform: [{ scale }] }]}> 

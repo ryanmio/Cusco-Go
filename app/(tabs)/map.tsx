@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, Circle, MapPressEvent } from 'react-native-maps';
 import { useFocusEffect } from 'expo-router';
 import * as Network from 'expo-network';
-import { addCapturesListener, listCaptures } from '@/lib/db';
+import { addCapturesListener, listCaptures, type CaptureRow, listBonusEventsForCapture } from '@/lib/db';
+import { HUNT_ITEMS } from '@/data/items';
 import { getSingleLocationOrNull } from '@/lib/location';
 import { listBiomes, CircleBiome, distanceMeters } from '@/lib/biomes';
 import GlassSurface from '@/components/GlassSurface';
+import { MapPin } from '@/components/MapPin';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -15,9 +17,11 @@ export default function MapTab() {
   const colors = Colors[colorScheme ?? 'light'];
 
   const [online, setOnline] = useState<boolean | null>(null);
+  const [captures, setCaptures] = useState<CaptureRow[]>([]);
   const [points, setPoints] = useState<{ id: number; latitude: number; longitude: number; title: string }[]>([]);
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
   const [selectedBiome, setSelectedBiome] = useState<CircleBiome | null>(null);
+  const [selectedCaptureId, setSelectedCaptureId] = useState<number | null>(null);
   const meRef = useRef<{ latitude: number; longitude: number } | null>(null);
   const lastFixAtRef = useRef<number>(0);
   const mapRef = useRef<MapView | null>(null);
@@ -82,6 +86,7 @@ export default function MapTab() {
 
   function loadPoints() {
     const rows = listCaptures();
+    setCaptures(rows);
     const raw = rows
       .filter(r => r.latitude != null && r.longitude != null)
       .map(r => ({ id: r.id, latitude: r.latitude as number, longitude: r.longitude as number, title: r.title }));
@@ -204,12 +209,21 @@ export default function MapTab() {
           );
         })}
         {points.map(p => (
-          <Marker 
-            key={p.id} 
-            coordinate={{ latitude: p.latitude, longitude: p.longitude }} 
-            title={p.title}
-            pinColor="red"
-          />
+          <Marker
+            key={p.id}
+            coordinate={{ latitude: p.latitude, longitude: p.longitude }}
+            anchor={{ x: 0.5, y: 1 }}
+            centerOffset={{ x: 0, y: -12 }}
+            tracksViewChanges={false}
+            zIndex={3}
+            onPress={(e) => {
+              e.stopPropagation();
+              setSelectedBiome(null);
+              setSelectedCaptureId(p.id);
+            }}
+          >
+            <MapPin label={p.title} />
+          </Marker>
         ))}
       </MapView>
       <View style={styles.zoomHint}>
@@ -228,6 +242,21 @@ export default function MapTab() {
               <Text style={[styles.biomeTitle, { color: textColor }]}>{selectedBiome.label}</Text>
               <Text style={[styles.biomeSubtitle, { color: textColor }]}>Multiplier ×{selectedBiome.multiplier.toFixed(1)}</Text>
             </View>
+          </GlassSurface>
+        </View>
+      ) : null}
+
+      {selectedCaptureId != null ? (
+        <View style={styles.captureCardWrap} pointerEvents="box-none">
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setSelectedCaptureId(null)} />
+          <GlassSurface
+            style={styles.captureGlass}
+            glassEffectStyle="regular"
+            isInteractive
+            tintColor={glassTint}
+            fallbackStyle={{ backgroundColor: fallbackGlass }}
+          >
+            <SelectedCaptureContent capture={captures.find(c => c.id === selectedCaptureId) || null} textColor={textColor} />
           </GlassSurface>
         </View>
       ) : null}
@@ -267,5 +296,51 @@ const styles = StyleSheet.create({
   biomeContent: { alignItems: 'center' },
   biomeTitle: { fontSize: 18, fontWeight: '900', marginBottom: 2, textAlign: 'center' },
   biomeSubtitle: { fontSize: 14, fontWeight: '800', opacity: 0.95, textAlign: 'center' },
+  captureCardWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 96,
+    alignItems: 'center',
+  },
+  captureGlass: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginHorizontal: 16,
+  },
 });
+
+function SelectedCaptureContent({ capture, textColor }: { capture: CaptureRow | null; textColor: string }) {
+  const [bonusTotal, setBonusTotal] = React.useState(0);
+  useEffect(() => {
+    if (!capture) { setBonusTotal(0); return; }
+    const all = listBonusEventsForCapture(capture.id);
+    setBonusTotal(all.reduce((s, b) => s + b.bonusPoints, 0));
+  }, [capture?.id]);
+  if (!capture) return null as any;
+  const base = getBasePointsForItemId(capture.itemId);
+  const total = base + bonusTotal;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      <Image source={{ uri: capture.thumbnailUri }} style={{ width: 64, height: 64, borderRadius: 12 }} />
+      <View style={{ flex: 1 }}>
+        <Text style={{ color: textColor, fontSize: 16, fontWeight: '800' }} numberOfLines={1}>{capture.title}</Text>
+        <Text style={{ color: textColor, opacity: 0.85, marginTop: 2, fontWeight: '700' }}>+{base} base</Text>
+        {bonusTotal > 0 ? (
+          <Text style={{ color: textColor, opacity: 0.85, marginTop: 2, fontWeight: '700' }}>+{bonusTotal} bonus</Text>
+        ) : null}
+      </View>
+      <View style={{ alignItems: 'flex-end' }}>
+        <Text style={{ color: textColor, fontSize: 18, fontWeight: '900' }}>{total} pts</Text>
+      </View>
+    </View>
+  );
+}
+
+function getBasePointsForItemId(itemId: string): number {
+  const match = HUNT_ITEMS.find((i: any) => i.id === itemId);
+  return match ? Number(match.difficulty) : 0;
+}
 

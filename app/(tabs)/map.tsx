@@ -272,7 +272,10 @@ export default function MapTab() {
             style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], alignSelf: 'stretch' }}
             pointerEvents="box-none"
           >
-            <View style={{ alignSelf: 'stretch' }}>
+            <Pressable style={{ alignSelf: 'stretch' }} onPress={() => {
+              const cap = captures.find(c => c.id === selectedCaptureId);
+              if (cap) router.push({ pathname: '/item/[id]', params: { id: cap.itemId } });
+            }}>
               <GlassSurface
                 style={[styles.captureGlass, { marginHorizontal: 16 }]}
                 glassEffectStyle="regular"
@@ -283,10 +286,9 @@ export default function MapTab() {
                 <SelectedCaptureContent
                   capture={captures.find(c => c.id === selectedCaptureId) || null}
                   textColor={textColor}
-                  onDetails={(itemId) => router.push({ pathname: '/item/[id]', params: { id: itemId } })}
                 />
               </GlassSurface>
-            </View>
+            </Pressable>
           </Animated.View>
         </View>
       ) : null}
@@ -342,7 +344,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function SelectedCaptureContent({ capture, textColor, onDetails }: { capture: CaptureRow | null; textColor: string; onDetails: (itemId: string) => void }) {
+function SelectedCaptureContent({ capture, textColor }: { capture: CaptureRow | null; textColor: string }) {
   const [bonusTotal, setBonusTotal] = React.useState(0);
   useEffect(() => {
     if (!capture) { setBonusTotal(0); return; }
@@ -358,13 +360,7 @@ function SelectedCaptureContent({ capture, textColor, onDetails }: { capture: Ca
       <View style={{ flex: 1 }}>
         <Text style={{ color: textColor, fontSize: 17, fontWeight: '900' }} numberOfLines={1}>{capture.title}</Text>
         <Text style={{ color: textColor, opacity: 0.9, marginTop: 4, fontWeight: '800' }}>{total} pts</Text>
-        <View style={{ flexDirection: 'row', marginTop: 8 }}>
-          <Pressable onPress={() => onDetails(capture.itemId)} hitSlop={6}>
-            <View style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.25)' }}>
-              <Text style={{ color: '#fff', fontWeight: '800' }}>Details</Text>
-            </View>
-          </Pressable>
-        </View>
+        <View style={{ height: 8 }} />
       </View>
       <Text style={{ color: textColor, opacity: 0.8, fontSize: 20, fontWeight: '900', paddingHorizontal: 6 }}>›</Text>
     </View>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { ActionSheetIOS, Alert, FlatList, StyleSheet, Text, TextInput, View, ActivityIndicator, TouchableOpacity, NativeSyntheticEvent, NativeScrollEvent, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GlassSurface from '@/components/GlassSurface';
@@ -8,7 +8,7 @@ import { useCelebration } from '@/components/CelebrationProvider';
 import { HUNT_ITEMS } from '@/data/items';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
-import { addCapturesListener, getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
+import { addCapturesListener, listCaptures, insertCapture, updateCaptureLocation } from '@/lib/db';
 import { getSingleLocationOrNull, getSingleLocationIfPermitted, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { evaluateAndRecordBiomeBonus } from '@/lib/biomeScoring';
 import * as MediaLibrary from 'expo-media-library';
@@ -105,6 +105,18 @@ export default function HuntGridScreen() {
     const matchesCategory = categoryFilter === 'all' ? true : item.category === activeCategory;
     return matchesCategory;
   });
+
+  // Build a latest-capture map once per version change to avoid per-card DB reads
+  const latestByItemId = useMemo(() => {
+    const rows = listCaptures(); // ORDER BY createdAt DESC
+    const map = new Map<string, { thumbnailUri: string; id: number }>();
+    for (const r of rows) {
+      if (!map.has(r.itemId)) {
+        map.set(r.itemId, { thumbnailUri: r.thumbnailUri, id: r.id });
+      }
+    }
+    return map;
+  }, [version]);
 
   function onListScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
     const y = e.nativeEvent.contentOffset.y;
@@ -294,7 +306,7 @@ export default function HuntGridScreen() {
   }
 
   function onCardPress(item: any) {
-    const latest = getLatestCaptureForItem(item.id);
+    const latest = latestByItemId.get(item.id);
     if (latest) {
       // Navigate to item detail page if photo exists
       router.push(`/item/${item.id}`);
@@ -306,18 +318,17 @@ export default function HuntGridScreen() {
 
   function renderCard({ item }: any) {
     const isProcessing = processingItemId === item.id;
-    const latest = getLatestCaptureForItem(item.id);
-    const thumbSource = isProcessing && optimisticThumbUri
-      ? { uri: optimisticThumbUri }
-      : latest
-      ? { uri: latest.thumbnailUri }
-      : item.placeholder;
+    const latest = latestByItemId.get(item.id);
+    const resolvedThumbUri = isProcessing && optimisticThumbUri
+      ? optimisticThumbUri
+      : latest?.thumbnailUri ?? null;
     return (
       <View style={{ flex: 1 }}>
         <CaptureCard 
           id={item.id} 
           title={item.title} 
-          placeholder={thumbSource} 
+          placeholder={item.placeholder}
+          thumbnailUri={resolvedThumbUri}
           onPress={() => onCardPress(item)} 
         />
         {isProcessing && (

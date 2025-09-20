@@ -1,12 +1,10 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import GlassSurface from '@/components/GlassSurface';
-import { getLatestCaptureForItem } from '@/lib/db';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
-export function CaptureCard({ id, title, placeholder, onPress }: { id: string; title: string; placeholder: any; onPress: () => void }) {
-  const latest = getLatestCaptureForItem(id);
-  const thumbSource = latest ? { uri: latest.thumbnailUri } : placeholder;
+export function CaptureCard({ id, title, placeholder, thumbnailUri, onPress }: { id: string; title: string; placeholder: any; thumbnailUri?: string | null; onPress: () => void }) {
+  const thumbSource = thumbnailUri ? { uri: thumbnailUri } : placeholder;
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 

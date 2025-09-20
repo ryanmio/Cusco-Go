@@ -341,7 +341,7 @@
   },
   {
     "id": "puno",
-    "label": "Puno (City & Islands Hub)",
+    "label": "Puno",
     "type": "circle",
     "centerLat": -15.839571629761497,
     "centerLng": -70.02305440850158,
@@ -351,7 +351,7 @@
   },
   {
     "id": "colca-canyon",
-    "label": "Colca Canyon (Condors & Terraces)",
+    "label": "Colca Canyon",
     "type": "circle",
     "centerLat": -15.6225,
     "centerLng": -72.0042,
@@ -361,7 +361,7 @@
   },
   {
     "id": "puerto-maldonado",
-    "label": "Puerto Maldonado (Amazon Gateway)",
+    "label": "Puerto Maldonado",
     "type": "circle",
     "centerLat": -12.591176206047296,
     "centerLng": -69.20126029336988,
@@ -371,7 +371,7 @@
   },
   {
     "id": "hoja-nueva",
-    "label": "Hoja Nueva (Tambopata Research Station)",
+    "label": "Hoja Nueva",
     "type": "circle",
     "centerLat": -12.052711188598837,
     "centerLng": -69.53203609497297,

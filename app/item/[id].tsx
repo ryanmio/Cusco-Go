@@ -125,6 +125,7 @@ export default function ItemDetailScreen() {
   async function replacePhoto() {
     await ImagePicker.requestCameraPermissionsAsync();
     await ImagePicker.requestMediaLibraryPermissionsAsync();
+    await MediaLibrary.requestPermissionsAsync();
     
     ActionSheetIOS.showActionSheetWithOptions(
       {
@@ -263,11 +264,11 @@ export default function ItemDetailScreen() {
     try {
       // Request camera permission and pre-warm location
       await ImagePicker.requestCameraPermissionsAsync();
+      await MediaLibrary.requestPermissionsAsync();
       await ensureWhenInUsePermission();
       
       const result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
       if (!result.canceled) {
-        await ensurePhotosPermissionRequestedOnce();
         await handlePicked(result.assets[0].uri, item.id, item.title, result.assets[0].exif ?? null, true);
       }
     } catch (e: any) {

@@ -175,8 +175,9 @@ export default function HuntGridScreen() {
       async (index) => {
         try {
           if (index === 1) {
-            // Request permissions lazily when needed
+            // Request permissions up-front to avoid interrupting celebration
             await ImagePicker.requestCameraPermissionsAsync();
+            await MediaLibrary.requestPermissionsAsync();
             // Pre-warm location permission only when capturing
             await ensureWhenInUsePermission();
             const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
@@ -271,9 +272,8 @@ export default function HuntGridScreen() {
       router.push(`/item/${itemId}`);
     }, 150);
 
-    // Silent background save to Photos for camera captures only
+    // Silent background save to Photos for camera captures only (permission already requested up-front)
     if (isFromCamera) {
-      await ensurePhotosPermissionRequestedOnce();
       silentlySaveToPhotosIfPermitted(saved.originalUri);
     }
     // If no EXIF GPS, resolve a fresh fix in the background and update row, then try bonus

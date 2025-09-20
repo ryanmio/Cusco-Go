@@ -30,7 +30,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     category: 'animal',
     description: 'Smaller than llamas and prized for their ultra-soft wool. Alpacas have been raised in the Andes for millennia for their warm fleece.',
     placeholder: require('../assets/images/alpaca.webp'),
-    difficulty: 2,
+    difficulty: 1,
   },
   { 
     id: 'vicuna', 
@@ -54,7 +54,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     category: 'animal',
     description: 'Peru’s national bird, famed for the male’s brilliant orange-red plumage and fan-shaped crest. At dawn in the cloud forest, males perform noisy displays on rocky ledges to attract mates.',
     placeholder: require('../assets/images/cock-of-the-rock.webp'),
-    difficulty: 3,
+    difficulty: 4,
   },
   { 
     id: 'vizcacha', 
@@ -94,7 +94,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     category: 'animal',
     description: 'One of the largest butterflies, with dazzling iridescent blue wings. Often seen flitting along forest trails and riverbanks, its brilliant color flashes in the sunlight as it flies.',
     placeholder: require('../assets/images/blue-morpho.webp'),
-    difficulty: 2,
+    difficulty: 3,
   },
   { 
     id: 'puma', 
@@ -150,7 +150,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     category: 'plant',
     description: 'Sacred to the Incas for its healing and ritual uses. Chewing coca leaves or drinking coca tea helps reduce hunger and ward off altitude sickness — a tradition still practiced in the Andes today.',
     placeholder: require('../assets/images/coca.webp'),
-    difficulty: 3,
+    difficulty: 2,
   },
   { 
     id: 'muna', 
@@ -166,7 +166,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     category: 'plant',
     description: 'Hardy golden grass that carpets the high Andes above the tree line. Llamas, alpacas, and vicuñas graze on ichu, which thrives in thin soil under intense sun and freezing nights.',
     placeholder: require('../assets/images/ichu.webp'),
-    difficulty: 2,
+    difficulty: 3,
   },
   { 
     id: 'terraces', 
@@ -182,7 +182,7 @@ export const HUNT_ITEMS: HuntItem[] = [
     category: 'place',
     description: 'Carved ritual stone aligned with the sun, used by the Incas for astronomical observations.',
     placeholder: require('../assets/images/astronomy-stone.webp'),
-    difficulty: 2,
+    difficulty: 3,
   },
   { 
     id: 'trapezoid-doorway', 

@@ -6,7 +6,8 @@
     "centerLat": -12.06,
     "centerLng": -77.0375,
     "radiusMeters": 10000,
-    "multiplier": 1.2
+    "multiplier": 1.2,
+    "description": "Capital of Peru on the Pacific coast, major urban and political center."
   },
   {
     "id": "cusco",
@@ -15,7 +16,8 @@
     "centerLat": -13.51671,
     "centerLng": -71.97882,
     "radiusMeters": 6000,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "High-altitude city in the Andes, former capital of the Inca Empire."
   },
   {
     "id": "sacred-valley",
@@ -24,7 +26,8 @@
     "centerLat": -13.333,
     "centerLng": -72.083,
     "radiusMeters": 7500,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "Fertile valley of the Urubamba River with Inca sites and villages."
   },
   {
     "id": "machu-picchu",
@@ -33,7 +36,8 @@
     "centerLat": -13.16333,
     "centerLng": -72.54556,
     "radiusMeters": 5000,
-    "multiplier": 3.0
+    "multiplier": 3.0,
+    "description": "15th-century Inca citadel on a mountain ridge above the Urubamba River."
   },
   {
     "id": "lake-titicaca",
@@ -42,7 +46,8 @@
     "centerLat": -15.6658771680175,
     "centerLng": -69.53002575527593,
     "radiusMeters": 50000,
-    "multiplier": 2.0
+    "multiplier": 2.0,
+    "description": "Large high-altitude lake on the Peru–Bolivia border with island settlements."
   },
   {
     "id": "arequipa",
@@ -51,7 +56,8 @@
     "centerLat": -16.39889,
     "centerLng": -71.53694,
     "radiusMeters": 15000,
-    "multiplier": 1.6
+    "multiplier": 1.6,
+    "description": "Southern city built from volcanic stone, near Misti and Chachani volcanoes."
   },
   {
     "id": "test_home_machu",
@@ -61,7 +67,7 @@
     "centerLng": -77.18481510075861,
     "radiusMeters": 500,
     "multiplier": 1.2,
-    "description": "this is a description of a biome"
+    "description": "Developer test location in Virginia, used for debugging the app."
   },
   {
     "id": "choquequirao",
@@ -70,7 +76,8 @@
     "centerLat": -13.3928,
     "centerLng": -72.8739,
     "radiusMeters": 5000,
-    "multiplier": 2.2
+    "multiplier": 2.2,
+    "description": "Inca archaeological site on a ridge above the Apurímac River canyon."
   },
   {
     "id": "nazca-lines",
@@ -79,7 +86,8 @@
     "centerLat": -14.6975,
     "centerLng": -75.135,
     "radiusMeters": 15000,
-    "multiplier": 2.5
+    "multiplier": 2.5,
+    "description": "Ancient geoglyphs in the desert depicting animals and geometric shapes."
   },
   {
     "id": "kuelap",
@@ -88,7 +96,8 @@
     "centerLat": -6.4263,
     "centerLng": -77.9271,
     "radiusMeters": 5000,
-    "multiplier": 1.9
+    "multiplier": 1.9,
+    "description": "Stone fortress built by the Chachapoya culture in northern cloud forest."
   },
   {
     "id": "chan-chan",
@@ -97,7 +106,8 @@
     "centerLat": -8.1058,
     "centerLng": -79.0744,
     "radiusMeters": 5000,
-    "multiplier": 2.2
+    "multiplier": 2.2,
+    "description": "Largest adobe city in the Americas, capital of the Chimú culture."
   },
   {
     "id": "chavin",
@@ -106,7 +116,8 @@
     "centerLat": -9.5928,
     "centerLng": -77.1785,
     "radiusMeters": 1000,
-    "multiplier": 1.8
+    "multiplier": 1.8,
+    "description": "Ceremonial center of the Chavín culture with temples and carved stones."
   },
   {
     "id": "caral-supe",
@@ -115,7 +126,8 @@
     "centerLat": -10.8928,
     "centerLng": -77.5211,
     "radiusMeters": 3000,
-    "multiplier": 2.0
+    "multiplier": 2.0,
+    "description": "One of the oldest cities in the Americas, with pyramids and plazas."
   },
   {
     "id": "sipan-tombs",
@@ -124,7 +136,8 @@
     "centerLat": -6.8103,
     "centerLng": -79.6017,
     "radiusMeters": 1500,
-    "multiplier": 1.7
+    "multiplier": 1.7,
+    "description": "Moche elite burials at Huaca Rajada, including the Lord of Sipán."
   },
   {
     "id": "manu-biosphere",
@@ -133,7 +146,8 @@
     "centerLat": -12.04094,
     "centerLng": -71.72293,
     "radiusMeters": 50000,
-    "multiplier": 2.5
+    "multiplier": 2.5,
+    "description": "Large rainforest reserve spanning Andes to Amazon with high biodiversity."
   },
   {
     "id": "paracas-reserve",
@@ -142,7 +156,8 @@
     "centerLat": -13.8954,
     "centerLng": -76.2711,
     "radiusMeters": 30000,
-    "multiplier": 1.9
+    "multiplier": 1.9,
+    "description": "Coastal desert and marine reserve protecting wildlife and landscapes."
   },
   {
     "id": "pacaya-samiria",
@@ -151,7 +166,8 @@
     "centerLat": -5.25,
     "centerLng": -74.667,
     "radiusMeters": 50000,
-    "multiplier": 2.3
+    "multiplier": 2.3,
+    "description": "Amazon basin reserve of flooded forests and blackwater rivers."
   },
   {
     "id": "tumbes-mangroves",
@@ -160,7 +176,8 @@
     "centerLat": -3.4269,
     "centerLng": -80.2768,
     "radiusMeters": 5000,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "Northern coastal mangrove forest at the Tumbes River estuary."
   },
   {
     "id": "gocta-falls",
@@ -169,7 +186,8 @@
     "centerLat": -6.0204,
     "centerLng": -77.8861,
     "radiusMeters": 2000,
-    "multiplier": 1.4
+    "multiplier": 1.4,
+    "description": "Two-tiered waterfall in the Amazonas region, over 700 meters tall."
   },
   {
     "id": "vinicunca",
@@ -178,7 +196,8 @@
     "centerLat": -13.8693,
     "centerLng": -71.3029,
     "radiusMeters": 3000,
-    "multiplier": 1.6
+    "multiplier": 1.6,
+    "description": "Mountain with striped mineral layers, known as Rainbow Mountain."
   },
   {
     "id": "huacachina-oasis",
@@ -187,7 +206,8 @@
     "centerLat": -14.0875,
     "centerLng": -75.7626,
     "radiusMeters": 2000,
-    "multiplier": 1.2
+    "multiplier": 1.2,
+    "description": "Small natural lagoon surrounded by large desert sand dunes."
   },
   {
     "id": "cordillera-huayhuash",
@@ -196,7 +216,8 @@
     "centerLat": -10.39,
     "centerLng": -76.87,
     "radiusMeters": 20000,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "Compact Andean mountain range with peaks over 6,000 meters."
   },
   {
     "id": "nor-yauyos-cochas",
@@ -205,7 +226,8 @@
     "centerLat": -12.091,
     "centerLng": -75.835,
     "radiusMeters": 30000,
-    "multiplier": 1.3
+    "multiplier": 1.3,
+    "description": "Highland reserve with rivers, waterfalls, and glacial lakes."
   },
   {
     "id": "marcahuasi",
@@ -214,7 +236,8 @@
     "centerLat": -11.7889,
     "centerLng": -76.5736,
     "radiusMeters": 2000,
-    "multiplier": 1.2
+    "multiplier": 1.2,
+    "description": "High plateau near Lima with granite rock formations shaped by erosion."
   },
   {
     "id": "pampa-galeras",
@@ -223,7 +246,8 @@
     "centerLat": -14.693,
     "centerLng": -74.369,
     "radiusMeters": 5000,
-    "multiplier": 1.4
+    "multiplier": 1.4,
+    "description": "Highland reserve protecting vicuñas and Andean grassland habitat."
   },
   {
     "id": "oxapampa-cloud",
@@ -232,7 +256,8 @@
     "centerLat": -10.3542,
     "centerLng": -75.4491,
     "radiusMeters": 40000,
-    "multiplier": 1.4
+    "multiplier": 1.4,
+    "description": "Cloud forest zone in central Peru with high biodiversity."
   },
   {
     "id": "huascaran-national-park",
@@ -241,7 +266,8 @@
     "centerLat": -9.3333,
     "centerLng": -77.4,
     "radiusMeters": 20000,
-    "multiplier": 2.0
+    "multiplier": 2.0,
+    "description": "Cordillera Blanca reserve with Peru’s highest peak and glacial lakes."
   },
   {
     "id": "huayllay-stone-forest",
@@ -250,7 +276,8 @@
     "centerLat": -11.00034,
     "centerLng": -76.36597,
     "radiusMeters": 5000,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "Eroded volcanic stone formations resembling a forest of pillars."
   },
   {
     "id": "qeswachaka-bridge",
@@ -259,7 +286,8 @@
     "centerLat": -14.38132,
     "centerLng": -71.48401,
     "radiusMeters": 500,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "Traditional Inca rope bridge rebuilt annually with woven grass."
   },
   {
     "id": "cotahuasi-canyon",
@@ -268,7 +296,8 @@
     "centerLat": -15.267,
     "centerLng": -73.033,
     "radiusMeters": 20000,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "Deep canyon in southern Peru, over 3,500 meters from rim to river."
   },
   {
     "id": "rupac-ruins",
@@ -277,7 +306,8 @@
     "centerLat": -11.54917,
     "centerLng": -76.81361,
     "radiusMeters": 1500,
-    "multiplier": 1.3
+    "multiplier": 1.3,
+    "description": "Hilltop stone citadel ruins of the Atavillos culture near Lima."
   },
   {
     "id": "bosque-de-pomac",
@@ -286,7 +316,8 @@
     "centerLat": -6.51806,
     "centerLng": -79.70611,
     "radiusMeters": 5000,
-    "multiplier": 1.3
+    "multiplier": 1.3,
+    "description": "Dry forest with pyramids of the Sicán culture in northern Peru."
   },
   {
     "id": "tres-canones",
@@ -295,7 +326,8 @@
     "centerLat": -14.97552,
     "centerLng": -71.60955,
     "radiusMeters": 5000,
-    "multiplier": 1.3
+    "multiplier": 1.3,
+    "description": "Convergence of three deep Andean canyons in Cusco region."
   },
   {
     "id": "canyon-of-the-lost",
@@ -304,7 +336,8 @@
     "centerLat": -14.8138,
     "centerLng": -75.5169,
     "radiusMeters": 5000,
-    "multiplier": 1.2
+    "multiplier": 1.2,
+    "description": "Remote desert canyon with layered walls in the Ica region."
   },
   {
     "id": "puno",
@@ -313,7 +346,8 @@
     "centerLat": -15.839571629761497,
     "centerLng": -70.02305440850158,
     "radiusMeters": 5000,
-    "multiplier": 1.5
+    "multiplier": 1.5,
+    "description": "City on the shore of Lake Titicaca, gateway to island communities."
   },
   {
     "id": "colca-canyon",
@@ -322,7 +356,8 @@
     "centerLat": -15.6225,
     "centerLng": -72.0042,
     "radiusMeters": 20000,
-    "multiplier": 1.8
+    "multiplier": 1.8,
+    "description": "Andean canyon twice the depth of the Grand Canyon, with condors."
   },
   {
     "id": "puerto-maldonado",
@@ -331,7 +366,8 @@
     "centerLat": -12.591176206047296,
     "centerLng": -69.20126029336988,
     "radiusMeters": 20000,
-    "multiplier": 1.8
+    "multiplier": 1.8,
+    "description": "Amazon port city in Madre de Dios, gateway to Tambopata region."
   },
   {
     "id": "hoja-nueva",
@@ -340,6 +376,7 @@
     "centerLat": -12.052711188598837,
     "centerLng": -69.53203609497297,
     "radiusMeters": 15000,
-    "multiplier": 2.0
+    "multiplier": 2.0,
+    "description": "Research station in Tambopata rainforest for biodiversity studies."
   }
 ]

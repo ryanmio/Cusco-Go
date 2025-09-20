@@ -500,7 +500,8 @@ export default function HuntGridScreen() {
         }
         contentContainerStyle={styles.list}
         data={filteredItems}
-        keyExtractor={(i) => i.id + ':' + version}
+        keyExtractor={(i) => i.id}
+        extraData={version}
         numColumns={2}
         renderItem={renderCard}
         ListFooterComponent={<View style={{ height: Math.max(48, insets.bottom + 48) }} />}

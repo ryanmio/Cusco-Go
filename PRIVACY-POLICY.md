@@ -37,9 +37,3 @@ Because data remains on your device, please secure your device with a passcode a
 ## Changes to This Policy
 
 We may update this Privacy Policy to reflect changes in the App or legal requirements. Material changes will be posted in this repository.
-
-## Visual Effects
-
-On supported iOS devices, the app can render Apple's Liquid Glass visual effect using the system's native API. This is a visual-only feature and does not collect, store, or transmit any personal data.
-
-

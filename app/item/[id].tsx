@@ -378,6 +378,17 @@ export default function ItemDetailScreen() {
         <Text style={styles.title}>{item.title}</Text>
         <View style={styles.categoryContainer}>
           <Text style={styles.category}>{(item.category === 'place' ? 'RUIN' : item.category.toUpperCase())}</Text>
+          <View style={styles.difficulty} accessible accessibilityLabel={`Rarity ${item.difficulty} out of 5`}>
+            <Text style={styles.difficultyLabel}>RARITY</Text>
+            <View style={styles.difficultyDots}>
+              {[1,2,3,4,5].map((n) => (
+                <View
+                  key={n}
+                  style={[styles.dot, n <= (item.difficulty ?? 1) ? styles.dotFilled : styles.dotEmpty]}
+                />
+              ))}
+            </View>
+          </View>
         </View>
         <Text style={styles.description}>{item.description}</Text>
         
@@ -433,7 +444,7 @@ const styles = StyleSheet.create({
   },
   content: { padding: 20 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 8 },
-  categoryContainer: { marginBottom: 16 },
+  categoryContainer: { marginBottom: 16, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
   category: { 
     fontSize: 12, 
     fontWeight: '600', 
@@ -443,8 +454,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    alignSelf: 'flex-start'
+    alignSelf: 'flex-start',
+    marginRight: 8,
   },
+  difficulty: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  difficultyLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+    letterSpacing: 1,
+    marginRight: 6,
+  },
+  difficultyDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: { width: 6, height: 6, borderRadius: 3, marginHorizontal: 2 },
+  dotFilled: { backgroundColor: '#333' },
+  dotEmpty: { backgroundColor: '#cfcfcf' },
   description: { fontSize: 16, lineHeight: 24, color: '#333' },
   captureButton: { 
     marginTop: 24, 

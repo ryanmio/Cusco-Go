@@ -1,7 +1,7 @@
 [
   {
     "id": "lima",
-    "label": "Lima (Coastal Capital)",
+    "label": "Lima",
     "type": "circle",
     "centerLat": -12.06,
     "centerLng": -77.0375,
@@ -11,7 +11,7 @@
   },
   {
     "id": "cusco",
-    "label": "Cusco (Historic Urban Hub)",
+    "label": "Cusco",
     "type": "circle",
     "centerLat": -13.51671,
     "centerLng": -71.97882,
@@ -21,7 +21,7 @@
   },
   {
     "id": "sacred-valley",
-    "label": "Sacred Valley (Urubamba Valley)",
+    "label": "Sacred Valley",
     "type": "circle",
     "centerLat": -13.333,
     "centerLng": -72.083,
@@ -41,7 +41,7 @@
   },
   {
     "id": "lake-titicaca",
-    "label": "Lake Titicaca (Puno Highlands)",
+    "label": "Lake Titicaca",
     "type": "circle",
     "centerLat": -15.6658771680175,
     "centerLng": -69.53002575527593,
@@ -51,7 +51,7 @@
   },
   {
     "id": "arequipa",
-    "label": "Arequipa (Colonial City & Volcano Views)",
+    "label": "Arequipa",
     "type": "circle",
     "centerLat": -16.39889,
     "centerLng": -71.53694,
@@ -131,7 +131,7 @@
   },
   {
     "id": "sipan-tombs",
-    "label": "Sipán Tombs (Huaca Rajada)",
+    "label": "Sipán Tombs",
     "type": "circle",
     "centerLat": -6.8103,
     "centerLng": -79.6017,

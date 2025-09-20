@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Image, Pressable, StyleSheet, Text, View, Animated, Dimensions, ScrollView, RefreshControl } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, Animated, Dimensions, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { listCaptures, CaptureRow } from '@/lib/db';
@@ -267,21 +267,23 @@ export default function GalleryScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Apple Photos Style Gallery */}
-      <ScrollView
+    <View style={[styles.container, { backgroundColor: colors.background }]}> 
+      {/* Apple Photos Style Gallery (virtualized by day group) */}
+      <FlatList
+        data={dayGroups}
+        keyExtractor={(g) => g.date}
+        renderItem={({ item }) => renderDayGroup(item)}
         contentContainerStyle={[styles.galleryContainer, { paddingBottom: Math.max(96, insets.bottom + 96) }]}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.tint}
-          />
-        }
-      >
-        {dayGroups.map(renderDayGroup)}
-      </ScrollView>
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        // Virtualization tuning
+        initialNumToRender={4}
+        windowSize={5}
+        maxToRenderPerBatch={6}
+        updateCellsBatchingPeriod={50}
+        removeClippedSubviews
+      />
     </View>
   );
 }

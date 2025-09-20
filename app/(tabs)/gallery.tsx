@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, Animated, Dimensions, FlatList } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { listCaptures, CaptureRow } from '@/lib/db';
@@ -46,19 +47,42 @@ export default function GalleryScreen() {
   useEffect(() => {
     const missing = rows.filter(r => aspectRatios[r.id] === undefined);
     if (missing.length === 0) return;
-    missing.forEach((row) => {
-      Image.getSize(
-        row.originalUri,
-        (w, h) => {
-          if (!w || !h) return;
-          setAspectRatios(prev => ({ ...prev, [row.id]: h / w }));
-        },
-        () => {
-          // Fallback to square if size cannot be determined
-          setAspectRatios(prev => ({ ...prev, [row.id]: 1 }));
-        }
-      );
-    });
+    (async () => {
+      for (const row of missing) {
+        try {
+          // Try sidecar metadata first for fast, non-blocking layout
+          const metaUri = row.originalUri.replace(/\.jpg$/i, '.json');
+          const exists = await FileSystem.getInfoAsync(metaUri);
+          if (exists.exists) {
+            const raw = await FileSystem.readAsStringAsync(metaUri);
+            const meta = JSON.parse(raw);
+            const w = Number(meta?.width);
+            const h = Number(meta?.height);
+            if (isFinite(w) && isFinite(h) && w > 0 && h > 0) {
+              setAspectRatios(prev => ({ ...prev, [row.id]: h / w }));
+              continue;
+            }
+          }
+        } catch {}
+        // Fallback: probe image dimensions if sidecar missing or invalid
+        Image.getSize(
+          row.originalUri,
+          (w, h) => {
+            if (!w || !h) {
+              setAspectRatios(prev => ({ ...prev, [row.id]: 1 }));
+              return;
+            }
+            setAspectRatios(prev => ({ ...prev, [row.id]: h / w }));
+            // Opportunistically persist a sidecar to speed up future loads
+            const metaUri = row.originalUri.replace(/\.jpg$/i, '.json');
+            try { FileSystem.writeAsStringAsync(metaUri, JSON.stringify({ width: w, height: h })); } catch {}
+          },
+          () => {
+            setAspectRatios(prev => ({ ...prev, [row.id]: 1 }));
+          }
+        );
+      }
+    })();
   }, [rows]);
 
   const itemIdToItem = Object.fromEntries(HUNT_ITEMS.map(i => [i.id, i]));

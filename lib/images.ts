@@ -6,11 +6,15 @@ import { Image } from 'react-native';
 export type SavedImagePaths = {
   originalUri: string;
   thumbnailUri: string;
+  // Original image dimensions (useful for layout without probing)
+  originalWidth: number;
+  originalHeight: number;
 };
 
 export async function saveOriginalAndSquareThumbnail(sourceUri: string, filenameStem: string): Promise<SavedImagePaths> {
   const originalDest = `${originalsDirUri()}${filenameStem}.jpg`;
   const thumbDest = `${thumbsDirUri()}${filenameStem}_thumb.jpg`;
+  const metaDest = `${originalsDirUri()}${filenameStem}.json`;
 
   // Save original as JPEG (keep size) to normalize format
   const original = await ImageManipulator.manipulateAsync(
@@ -56,7 +60,13 @@ export async function saveOriginalAndSquareThumbnail(sourceUri: string, filename
 
   await FileSystem.copyAsync({ from: thumbSquare.uri, to: thumbDest });
 
-  return { originalUri: originalDest, thumbnailUri: thumbDest };
+  // Persist original dimensions to a lightweight sidecar for fast layout later
+  try {
+    const meta = { width: baseSize.width, height: baseSize.height };
+    await FileSystem.writeAsStringAsync(metaDest, JSON.stringify(meta));
+  } catch {}
+
+  return { originalUri: originalDest, thumbnailUri: thumbDest, originalWidth: baseSize.width, originalHeight: baseSize.height };
 }
 
 function getImageSizeAsync(uri: string): Promise<{ width: number; height: number }> {

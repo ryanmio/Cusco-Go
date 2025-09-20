@@ -378,5 +378,15 @@
     "radiusMeters": 15000,
     "multiplier": 2.0,
     "description": "Research station in Tambopata rainforest for biodiversity studies."
+  },
+  {
+    "id": "theodore-roosevelt-island",
+    "label": "Theodore Roosevelt Island",
+    "type": "circle",
+    "centerLat": 38.897265776575765,
+    "centerLng": -77.06400009642904,
+    "radiusMeters": 150,
+    "multiplier": 1.5,
+    "description": "Urban island park in the Potomac River in Washington, D.C., designated as a memorial to President Theodore Roosevelt."
   }
 ]

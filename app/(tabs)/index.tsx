@@ -9,7 +9,7 @@ import { HUNT_ITEMS } from '@/data/items';
 import { ensureAppDirs } from '@/lib/files';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { addCapturesListener, getLatestCaptureForItem, insertCapture, updateCaptureLocation } from '@/lib/db';
-import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
+import { getSingleLocationOrNull, getSingleLocationIfPermitted, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { evaluateAndRecordBiomeBonus } from '@/lib/biomeScoring';
 import * as MediaLibrary from 'expo-media-library';
 
@@ -266,7 +266,8 @@ export default function HuntGridScreen() {
     }
     // If no EXIF GPS, resolve a fresh fix in the background and update row, then try bonus
     if (!exifGps) {
-      getSingleLocationOrNull().then(async (loc) => {
+      // Silent: only attempt if already permitted; do not prompt
+      getSingleLocationIfPermitted().then(async (loc) => {
         if (loc) {
           updateCaptureLocation(id, loc.latitude, loc.longitude);
           if (basePoints > 0) {

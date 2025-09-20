@@ -24,6 +24,22 @@ export async function getSingleLocationOrNull() {
   }
 }
 
+// Silent variant: only attempts a fix if permission is already granted. Never prompts.
+export async function getSingleLocationIfPermitted() {
+  try {
+    const perm = await Location.getForegroundPermissionsAsync();
+    if (perm.status !== Location.PermissionStatus.GRANTED) return null;
+    const accuracy = __DEV__ ? Location.Accuracy.Balanced : Location.Accuracy.High;
+    const pos = await Location.getCurrentPositionAsync({ 
+      accuracy,
+      mayShowUserSettingsDialog: true
+    });
+    return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+  } catch {
+    return null;
+  }
+}
+
 // Best-effort EXIF GPS extraction from an ImagePicker asset's EXIF block
 // Returns null if coordinates are missing or malformed
 export function extractGpsFromExif(exif: any): { latitude: number; longitude: number } | null {

@@ -6,7 +6,7 @@ import * as MediaLibrary from 'expo-media-library';
 import { HUNT_ITEMS } from '@/data/items';
 import { getLatestCaptureForItem, deleteCapture } from '@/lib/db';
 import { saveOriginalAndSquareThumbnail } from '@/lib/images';
-import { getSingleLocationOrNull, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
+import { getSingleLocationOrNull, getSingleLocationIfPermitted, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { removeFileIfExists } from '@/lib/files';
 import GlassSurface from '@/components/GlassSurface';
 import Colors from '@/constants/Colors';
@@ -183,6 +183,22 @@ export default function ItemDetailScreen() {
                     longitude: lon,
                     basePoints,
                   });
+                } else {
+                  // Silent fallback: try once only if permission already granted
+                  getSingleLocationIfPermitted().then(async (fresh) => {
+                    if (fresh) {
+                      const { updateCaptureLocation } = require('@/lib/db');
+                      updateCaptureLocation(newId, fresh.latitude, fresh.longitude);
+                      try {
+                        await evaluateAndRecordBiomeBonus({
+                          captureId: newId,
+                          latitude: fresh.latitude,
+                          longitude: fresh.longitude,
+                          basePoints,
+                        });
+                      } catch {}
+                    }
+                  });
                 }
               }
             } catch {}
@@ -301,9 +317,9 @@ export default function ItemDetailScreen() {
       silentlySaveToPhotosIfPermitted(saved.originalUri);
     }
     
-    // If no EXIF GPS, resolve a fresh fix in the background and update row, then award bonus
+    // If no EXIF GPS, try a silent one-shot fix (no prompt) and then award bonus
     if (!exifGps) {
-      getSingleLocationOrNull().then((loc) => {
+      getSingleLocationIfPermitted().then((loc) => {
         if (loc) {
           const { updateCaptureLocation } = require('@/lib/db');
           updateCaptureLocation(id, loc.latitude, loc.longitude);

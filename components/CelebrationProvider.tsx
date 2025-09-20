@@ -53,9 +53,10 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
       toastAnim.setValue(0);
       lastBaseShownAtRef.current = Date.now();
       Animated.sequence([
-        Animated.timing(toastAnim, { toValue: 1, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        // Use native driver for opacity/transform to reduce JS-thread work
+        Animated.timing(toastAnim, { toValue: 1, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
         Animated.delay(1700),
-        Animated.timing(toastAnim, { toValue: 0, duration: 260, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+        Animated.timing(toastAnim, { toValue: 0, duration: 260, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
       ]).start();
       setConfettiKeys((k) => [...k, Date.now()]);
     }, delay);
@@ -78,9 +79,10 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
       miniToastAnim.stopAnimation();
       miniToastAnim.setValue(0);
       Animated.sequence([
-        Animated.timing(miniToastAnim, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        // Use native driver for opacity/transform to reduce JS-thread work
+        Animated.timing(miniToastAnim, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
         Animated.delay(1400),
-        Animated.timing(miniToastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+        Animated.timing(miniToastAnim, { toValue: 0, duration: 220, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
       ]).start();
       setMiniKeys((k) => [...k, Date.now()]);
     }, delay);
@@ -148,6 +150,9 @@ export function CelebrationProvider({ children }: { children: React.ReactNode })
 }
 
 function ConfettiBurst({ width, onDone, topOffset = 0 }: { width: number; onDone: () => void; topOffset?: number }) {
+  // NOTE (perf): These pieces animate left/top/opacity which require useNativeDriver=false.
+  // Future improvement: migrate x/y to transform translateX/translateY and opacity/rotation
+  // only, so we can set useNativeDriver=true and offload work to the native thread.
   const pieces = 24;
   const colors = ['#FFD166', '#EF476F', '#06D6A0', '#118AB2', '#8338EC'];
   const animations = useRef(
@@ -208,6 +213,9 @@ function ConfettiBurst({ width, onDone, topOffset = 0 }: { width: number; onDone
 }
 
 function Sparkler({ intensity = 16, durationMs = 1000 }: { intensity?: number; durationMs?: number }) {
+  // NOTE (perf): Sparkler currently animates size/opacity with values that require
+  // useNativeDriver=false. Consider reworking to transform-based scale + opacity only
+  // (no layout-affecting props) to enable useNativeDriver=true.
   const sparks = useRef(
     Array.from({ length: intensity }, () => ({
       r: new Animated.Value(0), // radial distance
@@ -266,6 +274,9 @@ function Sparkler({ intensity = 16, durationMs = 1000 }: { intensity?: number; d
 }
 
 function Shimmer() {
+  // NOTE (perf): Shimmer animates `left`, which cannot use the native driver.
+  // Consider turning this into a transform-based slide (translateX) so we can
+  // enable useNativeDriver=true and reduce JS thread work.
   const x = useRef(new Animated.Value(-120)).current;
   React.useEffect(() => {
     Animated.sequence([

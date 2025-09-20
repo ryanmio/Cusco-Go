@@ -9,7 +9,6 @@ import { saveOriginalAndSquareThumbnail } from '@/lib/images';
 import { getSingleLocationOrNull, getSingleLocationIfPermitted, extractGpsFromExif, ensureWhenInUsePermission } from '@/lib/location';
 import { removeFileIfExists } from '@/lib/files';
 import GlassSurface from '@/components/GlassSurface';
-import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { evaluateAndRecordBiomeBonus } from '@/lib/biomeScoring';
 

@@ -135,7 +135,14 @@ export default function OnboardingScreen() {
       >
         {pages.map((p, i) => (
           <View key={i} style={[styles.page, { width }]}>            
-              <GlassSurface style={[styles.card, { height: cardHeight }]} glassEffectStyle={cardGlass.style} isInteractive tintColor={cardGlass.tint} useHaloFix>
+              <GlassSurface
+                style={[styles.card, { height: cardHeight }]}
+                glassEffectStyle={cardGlass.style}
+                isInteractive
+                tintColor={cardGlass.tint}
+                fallbackStyle={{ backgroundColor: 'rgba(34,16,13,0.4)' }}
+                useHaloFix
+              >
               <Text style={[styles.emoji]}>{p.emoji}</Text>
                 <Text style={[styles.title, { color: '#fff' }]}>{p.title}</Text>
                 <Text style={[styles.body, { color: '#fff' }]}>{p.body}</Text>

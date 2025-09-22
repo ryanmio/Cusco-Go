@@ -121,7 +121,14 @@ export default function PointsScreen() {
           glassEffectStyle="clear"
           isInteractive
           tintColor={(colorScheme === 'dark') ? 'rgba(255, 255, 255, 0)' : 'rgba(255, 255, 255, 0.38)'}
-          fallbackStyle={{ backgroundColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.28)' }}
+          fallbackStyle={{
+            backgroundColor: (colorScheme === 'dark') ? '#0b0b0b' : '#ffffff',
+            shadowColor: (colorScheme === 'dark') ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.14)',
+            shadowOpacity: 1,
+            shadowRadius: 14,
+            shadowOffset: { width: 0, height: 8 },
+            elevation: 10,
+          }}
         >
           <Animated.View style={[styles.headerRow, { transform: [{ scale }] }]}> 
             <ProgressDonut 

@@ -10,7 +10,19 @@ export function CaptureCard({ id, title, placeholder, thumbnailUri, onPress }: {
 
   return (
     <Pressable style={styles.card} onPress={onPress}>
-      <GlassSurface style={styles.imageWrap} glassEffectStyle="regular" isInteractive>
+      <GlassSurface
+        style={styles.imageWrap}
+        glassEffectStyle="regular"
+        isInteractive
+        fallbackStyle={{
+          backgroundColor: colors.cardBackground,
+          shadowColor: '#000',
+          shadowOpacity: 0.25,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: 4 },
+          elevation: 6,
+        }}
+      >
         <Image source={thumbSource} style={styles.image} resizeMode="cover" />
       </GlassSurface>
       <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>

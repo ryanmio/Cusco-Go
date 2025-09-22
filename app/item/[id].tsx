@@ -123,9 +123,8 @@ export default function ItemDetailScreen() {
   }
 
   async function replacePhoto() {
+    // Only request camera up-front. We'll request Photos write-only or library read later based on choice.
     await ImagePicker.requestCameraPermissionsAsync();
-    await ImagePicker.requestMediaLibraryPermissionsAsync();
-    await MediaLibrary.requestPermissionsAsync();
     
     ActionSheetIOS.showActionSheetWithOptions(
       {
@@ -137,8 +136,12 @@ export default function ItemDetailScreen() {
         try {
           let result;
           if (index === 1) {
+            // Taking a new photo: request write-only Photos permission up-front
+            await MediaLibrary.requestPermissionsAsync({ writeOnly: true } as any);
             result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
           } else if (index === 2) {
+            // Choosing from library: request read access for picker
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
             result = await ImagePicker.launchImageLibraryAsync({ allowsEditing: false, quality: 1, exif: true });
           }
           
@@ -264,7 +267,7 @@ export default function ItemDetailScreen() {
     try {
       // Request camera permission and pre-warm location
       await ImagePicker.requestCameraPermissionsAsync();
-      await MediaLibrary.requestPermissionsAsync();
+      await MediaLibrary.requestPermissionsAsync({ writeOnly: true } as any);
       await ensureWhenInUsePermission();
       
       const result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });

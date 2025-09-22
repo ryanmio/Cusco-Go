@@ -19,10 +19,10 @@
       "bundleIdentifier": "dev.cuscogo.app",
       "buildNumber": "17",
       "infoPlist": {
-        "NSCameraUsageDescription": "Allow camera access to capture scavenger hunt photos.",
-        "NSPhotoLibraryAddUsageDescription": "Allow saving captured photos and thumbnails to your Photos library.",
-        "NSPhotoLibraryUsageDescription": "Allow selecting images from your Photos library.",
-        "NSLocationWhenInUseUsageDescription": "Allow recording GPS coordinates with your captures while using the app.",
+        "NSCameraUsageDescription": "Cusco Go uses the camera to capture hunt items. Example: Take a photo of an Andean Condor to record a capture.",
+        "NSPhotoLibraryAddUsageDescription": "Cusco Go saves your captured photos to a 'Cusco Go' album in Photos so you can keep and share them. Example: After you photograph a condor, we add it to your Photos.",
+        "NSPhotoLibraryUsageDescription": "Cusco Go lets you choose existing photos from your library as captures. Example: Select a llama photo you've already taken.",
+        "NSLocationWhenInUseUsageDescription": "Cusco Go uses your location to award biome bonus points to captures. Example: If a photo is taken in cloud forest, you may receive a bonus.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },

@@ -22,7 +22,7 @@ export default function Viewer() {
 
   async function onSave() {
     try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
+      const { status } = await MediaLibrary.requestPermissionsAsync({ writeOnly: true } as any);
       if (status !== 'granted') {
         Alert.alert('Permission Denied', 'Please allow access to Photos to save images.');
         return;

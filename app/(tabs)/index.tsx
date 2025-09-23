@@ -178,7 +178,7 @@ export default function HuntGridScreen() {
             // Request permissions up-front to avoid interrupting celebration
             await ImagePicker.requestCameraPermissionsAsync();
             // Write-only: we only need to add captured photos when taking a photo
-            await MediaLibrary.requestPermissionsAsync({ writeOnly: true } as any);
+            await MediaLibrary.requestPermissionsAsync(true);
             // Pre-warm location permission only when capturing
             await ensureWhenInUsePermission();
             const cam = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });

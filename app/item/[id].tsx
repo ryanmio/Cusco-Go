@@ -137,7 +137,7 @@ export default function ItemDetailScreen() {
           let result;
           if (index === 1) {
             // Taking a new photo: request write-only Photos permission up-front
-            await MediaLibrary.requestPermissionsAsync({ writeOnly: true } as any);
+            await MediaLibrary.requestPermissionsAsync(true);
             result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });
           } else if (index === 2) {
             // Choosing from library: request read access for picker
@@ -267,7 +267,7 @@ export default function ItemDetailScreen() {
     try {
       // Request camera permission and pre-warm location
       await ImagePicker.requestCameraPermissionsAsync();
-      await MediaLibrary.requestPermissionsAsync({ writeOnly: true } as any);
+      await MediaLibrary.requestPermissionsAsync(true);
       await ensureWhenInUsePermission();
       
       const result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 1, exif: true });

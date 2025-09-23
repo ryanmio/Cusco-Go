@@ -60,16 +60,6 @@
     "description": "Southern city built from volcanic stone, near Misti and Chachani volcanoes."
   },
   {
-    "id": "test_home_machu",
-    "label": "Machu Picchu (Test at Home)",
-    "type": "circle",
-    "centerLat": 38.864574043109855,
-    "centerLng": -77.18481510075861,
-    "radiusMeters": 500,
-    "multiplier": 1.2,
-    "description": "Developer test location in Virginia, used for debugging the app."
-  },
-  {
     "id": "choquequirao",
     "label": "Choquequirao",
     "type": "circle",
@@ -378,15 +368,5 @@
     "radiusMeters": 15000,
     "multiplier": 2.0,
     "description": "Research station in Tambopata rainforest for biodiversity studies."
-  },
-  {
-    "id": "theodore-roosevelt-island",
-    "label": "Theodore Roosevelt Island",
-    "type": "circle",
-    "centerLat": 38.897265776575765,
-    "centerLng": -77.06400009642904,
-    "radiusMeters": 150,
-    "multiplier": 1.5,
-    "description": "Urban island park in the Potomac River in Washington, D.C., designated as a memorial to President Theodore Roosevelt."
   }
 ]

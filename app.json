@@ -17,7 +17,7 @@
       "icon": "./assets/cusco-go.icon",
       "supportsTablet": true,
       "bundleIdentifier": "dev.cuscogo.app",
-      "buildNumber": "18",
+      "buildNumber": "19",
       "infoPlist": {
         "NSCameraUsageDescription": "Cusco Go uses the camera to capture hunt items. Example: Take a photo of an Andean Condor to record a capture.",
         "NSPhotoLibraryAddUsageDescription": "Cusco Go saves your captured photos to a 'Cusco Go' album in Photos so you can keep and share them. Example: After you photograph a condor, we add it to your Photos.",
